@@ -1,0 +1,322 @@
+=================================================
+   Welcome to Adventure Camp Management System   
+=================================================
+Loaded database from: data/database.json
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 1
+
+==========================================
+              CAMP REPORT                 
+==========================================
+Camp ID: C1 | Name: Summer Adventure Camp
+Dates: 2026-10-02 to 2026-10-09
+Capacity: 100 | Status: Active
+------------------------------------------
+Total Locations: 3
+Total Instructors: 2
+Total Participants: 4
+Total Equipment: 4
+Total Activities: 3
+Scheduled Entries: 1
+Total Registrations: 2
+Total Safety Checks: 1
+Attendance Records: 1
+Total Feedbacks: 1
+==========================================
+
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 2
+
+=== PARTICIPANTS LIST ===
+ID: P1   | Name: Bob          | Age: 20 | Contact: 555-0201   | Emergency: Mom: 555-0000  | Skill: Beginner     | MedNotes: None
+ID: P2   | Name: Charlie      | Age: 22 | Contact: 555-0202   | Emergency: Dad: 555-0001  | Skill: Intermediate | MedNotes: None
+ID: P3   | Name: Diana        | Age: 19 | Contact: 555-0203   | Emergency: Sister: 555-0002 | Skill: Advanced     | MedNotes: Asthma
+ID: P4   | Name: Emma         | Age: 21 | Contact: 555-9999   | Emergency: Dad: 555-1234  | Skill: Intermediate | MedNotes: None
+
+Add new participant? (y/n): y
+Name: JPL
+Age: 20
+Contact Number: 1234567890
+Emergency Contact: 2345678901
+Medical Notes: Heart patient
+Skill Level (Beginner/Intermediate/Advanced): Advanced
+All changes successfully saved to data/database.json
+Participant added successfully with ID: P5
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 3
+
+=== INSTRUCTORS LIST ===
+ID: I1   | Name: Alice        | Age: 30 | Contact: 555-0101   | Specialization: Water Sports     | Certifications: Lifeguard, Kayak Instructor
+ID: I2   | Name: Dave         | Age: 35 | Contact: 555-0102   | Specialization: Climbing & Ropes | Certifications: Lead Climbing, Wilderness First Aid
+
+Add new instructor? (y/n): y
+Name: Naren
+Age: 33
+Contact Number: 123456782       
+Specialization: Bungee Jumping
+Certifications (comma separated): AI, Full Stack 
+All changes successfully saved to data/database.json
+Instructor added successfully with ID: I3
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 4
+
+=== LOCATIONS LIST ===
+ID: L1   | Name: River Zone       | Address: North Woods      | Terrain: Water        | Capacity: 20
+ID: L2   | Name: Climbing Wall    | Address: Base Camp        | Terrain: Mountain     | Capacity: 10
+ID: L3   | Name: Camp Ground      | Address: Central Field    | Terrain: Grassland    | Capacity: 50
+
+Add new location? (y/n): n
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 5
+
+=== ACTIVITIES LIST ===
+ID: A1   | Type: WaterActivity        | Title: Kayaking Basics      | Duration: 120 min | Max: 10 | Loc: River Zone   | Inst: Alice      | Enrolled: 2
+ID: A2   | Type: AdventureActivity    | Title: Rock Climbing        | Duration:  90 min | Max:  8 | Loc: Climbing Wall | Inst: Dave       | Enrolled: 0
+ID: A3   | Type: TeamBuildingActivity | Title: Rope Course Challenge | Duration:  60 min | Max: 15 | Loc: Camp Ground  | Inst: Alice      | Enrolled: 0
+
+Add new activity? (y/n): n
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 6
+
+=== CAMP SCHEDULE ===
+Entry ID: SCH1  | Date: 2026-10-03 | Start: 2026-10-03T10:00 | Activity: Kayaking Basics
+
+Schedule an activity? (y/n): y
+Enter Activity ID: SCH1
+Activity not found.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 5
+
+=== ACTIVITIES LIST ===
+ID: A1   | Type: WaterActivity        | Title: Kayaking Basics      | Duration: 120 min | Max: 10 | Loc: River Zone   | Inst: Alice      | Enrolled: 2
+ID: A2   | Type: AdventureActivity    | Title: Rock Climbing        | Duration:  90 min | Max:  8 | Loc: Climbing Wall | Inst: Dave       | Enrolled: 0
+ID: A3   | Type: TeamBuildingActivity | Title: Rope Course Challenge | Duration:  60 min | Max: 15 | Loc: Camp Ground  | Inst: Alice      | Enrolled: 0
+
+Add new activity? (y/n): n
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 6
+
+=== CAMP SCHEDULE ===
+Entry ID: SCH1  | Date: 2026-10-03 | Start: 2026-10-03T10:00 | Activity: Kayaking Basics
+
+Schedule an activity? (y/n): y
+Enter Activity ID: A2
+Enter Date and Start Time (format: YYYY-MM-DD HH:mm, e.g. 2026-10-05 14:00): 2026-12-06 15:00
+All changes successfully saved to data/database.json
+Activity scheduled successfully for 2026-12-06 15:00
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 7
+
+=== ACTIVITY REGISTRATION ===
+Enter Participant ID (e.g. P1): P5
+Enter Activity ID (e.g. A1): A3
+All changes successfully saved to data/database.json
+Participant JPL registered for Rope Course Challenge successfully!
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 8
+
+=== EQUIPMENT INVENTORY ===
+ID: E1   | Name: Life Jacket        | Condition: Good   | Available: false | Safety Rating: A, Last Insp: 2026-10-01
+ID: E2   | Name: Climbing Helmet    | Condition: Good   | Available: true  | Safety Rating: A, Last Insp: 2026-09-25
+ID: E3   | Name: Kayak Paddle       | Condition: Good   | Available: true  | Sport: Kayaking
+ID: E4   | Name: Climbing Harness   | Condition: Good   | Available: true  | Sport: Climbing
+
+Actions:
+1. Add New Equipment
+2. Perform Safety Check
+3. Allocate Equipment to Activity
+4. Return Equipment
+0. Back to Main Menu
+Choice: 2
+Enter Equipment ID: E2
+Did the safety check pass? (true/false): true
+Remarks: Good condition
+All changes successfully saved to data/database.json
+Safety check recorded. Status: PASSED
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 9
+
+=== ATTENDANCE RECORDS ===
+Participant: Bob          | Activity: Kayaking Basics      | Date: 2026-10-02 | Present: YES
+
+Mark attendance for an activity? (y/n): y
+Enter Activity ID: A3
+
+Marking attendance for Rope Course Challenge:
+Is JPL (P5) present? (y/n): y
+All changes successfully saved to data/database.json
+Attendance successfully saved.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 10
+
+=== FEEDBACK & REVIEWS ===
+ID: FB1  | Rating: 5/5 | Participant: Bob        | Activity: Kayaking Basics  | Date: 2026-10-03 | Comments: Great kayaking session!
+
+Submit new feedback? (y/n): y
+Enter Participant ID: P5
+Enter Activity ID: A3
+Enter Rating (1-5): 4
+Comments: Nice
+All changes successfully saved to data/database.json
+Thank you! Feedback submitted and saved.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Register Participant for Activity
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+0. Save & Exit
+Select an option (0-10): 0
+All changes successfully saved to data/database.json
+
+Thank you for using ACMS. Goodbye!
