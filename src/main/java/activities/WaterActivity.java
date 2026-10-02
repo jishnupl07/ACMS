@@ -12,8 +12,16 @@ public class WaterActivity extends Activity {
         this.waterBodyType = waterBody;
     }
 
+    public WaterActivity(String id, String title, String desc, int duration, int max, Location loc, Instructor inst, boolean lifeguard, String waterBody) {
+        super(id, title, desc, duration, max, loc, inst);
+        this.lifeguardRequired = lifeguard;
+        this.waterBodyType = waterBody;
+    }
+
     @Override
     public void conductActivity() {
         System.out.println("Conducting Water Activity: " + getTitle() + " in " + waterBodyType);
     }
+    public boolean isLifeguardRequired() { return lifeguardRequired; }
+    public String getWaterBodyType() { return waterBodyType; }
 }

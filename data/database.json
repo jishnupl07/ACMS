@@ -1,0 +1,283 @@
+{
+  "camp": {
+    "campId": "C1",
+    "campName": "Summer Adventure Camp",
+    "startDate": "2026-10-02",
+    "endDate": "2026-10-09",
+    "capacity": 100,
+    "status": "Active"
+  },
+  "locations": [
+    {
+      "locationId": "L1",
+      "name": "River Zone",
+      "address": "North Woods",
+      "terrainType": "Water",
+      "capacity": 20
+    },
+    {
+      "locationId": "L2",
+      "name": "Climbing Wall",
+      "address": "Base Camp",
+      "terrainType": "Mountain",
+      "capacity": 10
+    },
+    {
+      "locationId": "L3",
+      "name": "Camp Ground",
+      "address": "Central Field",
+      "terrainType": "Grassland",
+      "capacity": 50
+    }
+  ],
+  "instructors": [
+    {
+      "id": "I1",
+      "name": "Alice",
+      "age": 30,
+      "contactNumber": "555-0101",
+      "specialization": "Water Sports",
+      "certifications": [
+        "Lifeguard",
+        "Kayak Instructor"
+      ]
+    },
+    {
+      "id": "I2",
+      "name": "Dave",
+      "age": 35,
+      "contactNumber": "555-0102",
+      "specialization": "Climbing & Ropes",
+      "certifications": [
+        "Lead Climbing",
+        "Wilderness First Aid"
+      ]
+    },
+    {
+      "id": "I3",
+      "name": "Naren",
+      "age": 33,
+      "contactNumber": "123456782",
+      "specialization": "Bungee Jumping",
+      "certifications": [
+        "AI",
+        "Full Stack"
+      ]
+    }
+  ],
+  "participants": [
+    {
+      "id": "P1",
+      "name": "Bob",
+      "age": 20,
+      "contactNumber": "555-0201",
+      "emergencyContact": "Mom: 555-0000",
+      "medicalNotes": "None",
+      "skillLevel": "Beginner"
+    },
+    {
+      "id": "P2",
+      "name": "Charlie",
+      "age": 22,
+      "contactNumber": "555-0202",
+      "emergencyContact": "Dad: 555-0001",
+      "medicalNotes": "None",
+      "skillLevel": "Intermediate"
+    },
+    {
+      "id": "P3",
+      "name": "Diana",
+      "age": 19,
+      "contactNumber": "555-0203",
+      "emergencyContact": "Sister: 555-0002",
+      "medicalNotes": "Asthma",
+      "skillLevel": "Advanced"
+    },
+    {
+      "id": "P4",
+      "name": "Emma",
+      "age": 21,
+      "contactNumber": "555-9999",
+      "emergencyContact": "Dad: 555-1234",
+      "medicalNotes": "None",
+      "skillLevel": "Intermediate"
+    },
+    {
+      "id": "P5",
+      "name": "JPL",
+      "age": 20,
+      "contactNumber": "1234567890",
+      "emergencyContact": "2345678901",
+      "medicalNotes": "Heart patient",
+      "skillLevel": "Advanced"
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "E1",
+      "name": "Life Jacket",
+      "condition": "Good",
+      "isAvailable": false,
+      "type": "SafetyEquipment",
+      "lastInspectionDate": "2026-10-01",
+      "safetyRating": "A"
+    },
+    {
+      "equipmentId": "E2",
+      "name": "Climbing Helmet",
+      "condition": "Good",
+      "isAvailable": true,
+      "type": "SafetyEquipment",
+      "lastInspectionDate": "2026-09-25",
+      "safetyRating": "A"
+    },
+    {
+      "equipmentId": "E3",
+      "name": "Kayak Paddle",
+      "condition": "Good",
+      "isAvailable": true,
+      "type": "SportsEquipment",
+      "sportType": "Kayaking"
+    },
+    {
+      "equipmentId": "E4",
+      "name": "Climbing Harness",
+      "condition": "Good",
+      "isAvailable": true,
+      "type": "SportsEquipment",
+      "sportType": "Climbing"
+    }
+  ],
+  "activities": [
+    {
+      "activityId": "A1",
+      "title": "Kayaking Basics",
+      "description": "Learn fundamentals of kayaking and water safety",
+      "durationMinutes": 120,
+      "maxParticipants": 10,
+      "locationId": "L1",
+      "instructorId": "I1",
+      "type": "WaterActivity",
+      "lifeguardRequired": true,
+      "waterBodyType": "River"
+    },
+    {
+      "activityId": "A2",
+      "title": "Rock Climbing",
+      "description": "Introductory outdoor rock climbing wall course",
+      "durationMinutes": 90,
+      "maxParticipants": 8,
+      "locationId": "L2",
+      "instructorId": "I2",
+      "type": "AdventureActivity",
+      "terrainType": "Rock Face",
+      "riskLevel": "Moderate"
+    },
+    {
+      "activityId": "A3",
+      "title": "Rope Course Challenge",
+      "description": "Cooperative obstacle navigation and team problem-solving",
+      "durationMinutes": 60,
+      "maxParticipants": 15,
+      "locationId": "L3",
+      "instructorId": "I1",
+      "type": "TeamBuildingActivity",
+      "teamSize": 5
+    }
+  ],
+  "schedules": [
+    {
+      "entryId": "SCH1",
+      "activityId": "A1",
+      "startTime": "2026-10-03T10:00"
+    },
+    {
+      "entryId": "SCH2",
+      "activityId": "A2",
+      "startTime": "2026-12-06T15:00"
+    }
+  ],
+  "registrations": [
+    {
+      "registrationId": "REG1",
+      "participantId": "P1",
+      "activityId": "A1",
+      "registrationDate": "2026-10-02",
+      "status": "Confirmed"
+    },
+    {
+      "registrationId": "REG2",
+      "participantId": "P2",
+      "activityId": "A1",
+      "registrationDate": "2026-10-02",
+      "status": "Confirmed"
+    },
+    {
+      "registrationId": "REG3",
+      "participantId": "P5",
+      "activityId": "A3",
+      "registrationDate": "2026-10-02",
+      "status": "Confirmed"
+    }
+  ],
+  "safetyChecks": [
+    {
+      "checkId": "SC1",
+      "checkDate": "2026-10-02",
+      "passed": true,
+      "remarks": "Equipment in pristine condition",
+      "equipmentId": "E1",
+      "activityId": "A1"
+    },
+    {
+      "checkId": "SC2",
+      "checkDate": "2026-10-02",
+      "passed": true,
+      "remarks": "Good condition",
+      "equipmentId": "E2",
+      "activityId": null
+    }
+  ],
+  "equipmentAllocations": [
+    {
+      "allocationId": "EA1",
+      "equipmentId": "E1",
+      "activityId": "A1",
+      "allocationDate": "2026-10-02",
+      "returnDate": null,
+      "status": "Allocated"
+    }
+  ],
+  "attendanceRecords": [
+    {
+      "participantId": "P1",
+      "activityId": "A1",
+      "date": "2026-10-02",
+      "isPresent": true
+    },
+    {
+      "participantId": "P5",
+      "activityId": "A3",
+      "date": "2026-10-02",
+      "isPresent": true
+    }
+  ],
+  "feedbacks": [
+    {
+      "feedbackId": "FB1",
+      "participantId": "P1",
+      "activityId": "A1",
+      "rating": 5,
+      "comments": "Great kayaking session!",
+      "submittedDate": "2026-10-03"
+    },
+    {
+      "feedbackId": "FB2",
+      "participantId": "P5",
+      "activityId": "A3",
+      "rating": 4,
+      "comments": "Nice",
+      "submittedDate": "2026-10-02"
+    }
+  ]
+}

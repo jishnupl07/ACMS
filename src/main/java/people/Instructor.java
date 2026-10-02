@@ -33,4 +33,5 @@ public class Instructor extends Person implements Notifiable {
     public void sendNotification(String message) {
         System.out.println("Notification for Instructor " + getName() + ": " + message);
     }
+    public java.util.List<String> getCertifications() { return certifications; }
 }

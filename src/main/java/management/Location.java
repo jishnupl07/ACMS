@@ -22,4 +22,6 @@ public class Location {
     public void displayDetails() {
         System.out.println("Location: " + name + " (" + capacity + " max)");
     }
+    public String getAddress() { return address; }
+    public String getTerrainType() { return terrainType; }
 }

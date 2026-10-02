@@ -25,4 +25,7 @@ public class Participant extends Person {
     public void displayInfo() {
         System.out.println("Participant [" + getId() + "] " + getName() + " - Skill: " + skillLevel);
     }
+    public String getEmergencyContact() { return emergencyContact; }
+    public String getMedicalNotes() { return medicalNotes; }
+    public String getSkillLevel() { return skillLevel; }
 }

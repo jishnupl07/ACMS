@@ -12,4 +12,6 @@ public class SportsEquipment extends Equipment {
     public void checkCondition() {
         System.out.println("Checking sports equipment " + getName() + " for sport: " + sportType);
     }
+
+    public String getSportType() { return sportType; }
 }

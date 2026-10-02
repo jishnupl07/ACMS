@@ -18,5 +18,6 @@ public class AttendanceRecord {
     
     public Participant getParticipant() { return participant; }
     public Activity getActivity() { return activity; }
+    public LocalDate getDate() { return date; }
     public boolean isPresent() { return isPresent; }
 }

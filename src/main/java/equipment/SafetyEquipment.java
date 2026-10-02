@@ -15,4 +15,7 @@ public class SafetyEquipment extends Equipment {
     public void checkCondition() {
         System.out.println("Checking safety equipment " + getName() + ". Last inspection: " + lastInspectionDate);
     }
+
+    public LocalDate getLastInspectionDate() { return lastInspectionDate; }
+    public String getSafetyRating() { return safetyRating; }
 }

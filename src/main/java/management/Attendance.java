@@ -19,4 +19,8 @@ public class Attendance {
         }
         return result;
     }
+
+    public Repository<AttendanceRecord> getRecords() {
+        return records;
+    }
 }

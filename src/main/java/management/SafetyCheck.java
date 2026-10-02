@@ -19,7 +19,20 @@ public class SafetyCheck {
         this.activity = activity;
         this.checkDate = LocalDate.now();
     }
+
+    public SafetyCheck(String checkId, boolean passed, String remarks, Equipment equipment, Activity activity, LocalDate checkDate) {
+        this.checkId = checkId;
+        this.passed = passed;
+        this.remarks = remarks;
+        this.equipment = equipment;
+        this.activity = activity;
+        this.checkDate = checkDate;
+    }
     
+    public String getCheckId() { return checkId; }
+    public LocalDate getCheckDate() { return checkDate; }
     public boolean isPassed() { return passed; }
     public String getRemarks() { return remarks; }
+    public Equipment getEquipment() { return equipment; }
+    public Activity getActivity() { return activity; }
 }

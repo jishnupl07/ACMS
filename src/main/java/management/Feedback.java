@@ -19,8 +19,20 @@ public class Feedback {
         this.activity = activity;
         this.submittedDate = LocalDate.now();
     }
+
+    public Feedback(String feedbackId, int rating, String comments, Participant participant, Activity activity, LocalDate submittedDate) {
+        this.feedbackId = feedbackId;
+        this.rating = rating;
+        this.comments = comments;
+        this.participant = participant;
+        this.activity = activity;
+        this.submittedDate = submittedDate;
+    }
     
+    public String getFeedbackId() { return feedbackId; }
     public int getRating() { return rating; }
     public String getComments() { return comments; }
     public Participant getParticipant() { return participant; }
+    public Activity getActivity() { return activity; }
+    public LocalDate getSubmittedDate() { return submittedDate; }
 }

@@ -18,8 +18,17 @@ public class Registration {
         this.status = "Confirmed";
     }
 
+    public Registration(String registrationId, Participant participant, Activity activity, LocalDate registrationDate, String status) {
+        this.registrationId = registrationId;
+        this.participant = participant;
+        this.activity = activity;
+        this.registrationDate = registrationDate;
+        this.status = status;
+    }
+
     public String getRegistrationId() { return registrationId; }
     public Activity getActivity() { return activity; }
     public Participant getParticipant() { return participant; }
+    public LocalDate getRegistrationDate() { return registrationDate; }
     public String getStatus() { return status; }
 }

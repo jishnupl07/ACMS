@@ -25,8 +25,13 @@ public abstract class Activity implements Schedulable {
     private List<EquipmentAllocation> equipmentAllocations = new ArrayList<>();
 
     public Activity(String activityId, String title, int durationMinutes, int maxParticipants, Location location, Instructor instructor) {
+        this(activityId, title, "", durationMinutes, maxParticipants, location, instructor);
+    }
+
+    public Activity(String activityId, String title, String description, int durationMinutes, int maxParticipants, Location location, Instructor instructor) {
         this.activityId = activityId;
         this.title = title;
+        this.description = description;
         this.durationMinutes = durationMinutes;
         this.maxParticipants = maxParticipants;
         this.location = location;
@@ -38,13 +43,20 @@ public abstract class Activity implements Schedulable {
 
     public String getActivityId() { return activityId; }
     public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public int getDurationMinutes() { return durationMinutes; }
     public int getMaxParticipants() { return maxParticipants; }
     public Location getLocation() { return location; }
     public Instructor getInstructor() { return instructor; }
     public List<Participant> getParticipants() { return participants; }
+    public List<Feedback> getFeedbackList() { return feedbackList; }
     public List<EquipmentAllocation> getEquipmentAllocations() { return equipmentAllocations; }
 
-    public void addParticipant(Participant p) { participants.add(p); }
+    public void addParticipant(Participant p) { 
+        if (!participants.contains(p)) {
+            participants.add(p); 
+        }
+    }
     public void removeParticipant(Participant p) { participants.remove(p); }
     public void addFeedback(Feedback f) { feedbackList.add(f); }
     public void addEquipmentAllocation(EquipmentAllocation ea) { equipmentAllocations.add(ea); }

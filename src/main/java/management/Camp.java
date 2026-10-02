@@ -20,9 +20,10 @@ public class Camp {
     private CampSchedule schedule = new CampSchedule();
     private Repository<Registration> registrations = new Repository<>();
     private Repository<SafetyCheck> safetyChecks = new Repository<>();
+    private Repository<Feedback> feedbacks = new Repository<>();
     private Attendance attendance = new Attendance();
     
-    // For easy management in CLI
+    // Repositories for system entities
     private Repository<Participant> participants = new Repository<>();
     private Repository<Instructor> instructors = new Repository<>();
     private Repository<Activity> activities = new Repository<>();
@@ -75,17 +76,43 @@ public class Camp {
             throw new SafetyViolationException("Safety check failed: " + check.getRemarks());
         }
     }
+
+    public void addFeedback(Feedback feedback) {
+        feedbacks.add(feedback);
+        if (feedback.getActivity() != null) {
+            feedback.getActivity().addFeedback(feedback);
+        }
+    }
     
     public void generateReport() {
-        System.out.println("=== CAMP REPORT ===");
-        System.out.println("Camp Name: " + campName);
-        System.out.println("Total Registrations: " + registrations.size());
+        System.out.println("\n==========================================");
+        System.out.println("              CAMP REPORT                 ");
+        System.out.println("==========================================");
+        System.out.println("Camp ID: " + campId + " | Name: " + campName);
+        System.out.println("Dates: " + startDate + " to " + endDate);
+        System.out.println("Capacity: " + capacity + " | Status: " + status);
+        System.out.println("------------------------------------------");
+        System.out.println("Total Locations: " + locations.size());
+        System.out.println("Total Instructors: " + instructors.size());
+        System.out.println("Total Participants: " + participants.size());
+        System.out.println("Total Equipment: " + equipmentList.size());
         System.out.println("Total Activities: " + activities.size());
+        System.out.println("Scheduled Entries: " + schedule.getEntries().size());
+        System.out.println("Total Registrations: " + registrations.size());
         System.out.println("Total Safety Checks: " + safetyChecks.size());
-        System.out.println("===================");
+        System.out.println("Attendance Records: " + attendance.getRecords().size());
+        System.out.println("Total Feedbacks: " + feedbacks.size());
+        System.out.println("==========================================\n");
     }
 
-    // Getters for CLI Repositories
+    // Getters and Setters
+    public String getCampId() { return campId; }
+    public String getCampName() { return campName; }
+    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public int getCapacity() { return capacity; }
+    public String getStatus() { return status; }
+    
     public Repository<Participant> getParticipants() { return participants; }
     public Repository<Instructor> getInstructors() { return instructors; }
     public Repository<Activity> getActivities() { return activities; }
@@ -94,4 +121,6 @@ public class Camp {
     public CampSchedule getSchedule() { return schedule; }
     public Attendance getAttendance() { return attendance; }
     public Repository<Registration> getRegistrations() { return registrations; }
+    public Repository<SafetyCheck> getSafetyChecks() { return safetyChecks; }
+    public Repository<Feedback> getFeedbacks() { return feedbacks; }
 }
