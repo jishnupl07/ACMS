@@ -1,239 +1,270 @@
-# Product Requirements Document (PRD)
-
-# Adventure Camp Management System
+# PRD --- Adventure Camp Management System
 
 ## 1. Project Overview
 
 ### 1.1 Purpose
 
-The Adventure Camp Management System is an object-oriented Java
-application for managing the main operations of an adventure camp.
+The Adventure Camp Management System is a **semester-level college
+project** that demonstrates object-oriented programming by building a
+small, usable application for managing an adventure camp.
 
-The system manages:
+The application should have a simple and intuitive graphical user
+interface and implement the functionality represented by the approved
+class diagram in:
 
--   Camp information and capacity
--   Participants
--   Instructors and activity assignments
--   Adventure activities
--   Activity scheduling
--   Participant registration
--   Attendance
--   Equipment and equipment allocation
--   Safety checks
--   Participant feedback
--   Notifications
--   Domain-specific exceptions
+`docs/class_structure.md`
 
-The implementation must follow the class structure defined in
-`docs/class_structure.md`.
+The goal is **not** to build a production-grade or commercial system.
+The goal is to build a clean, understandable and demonstrable academic
+project that makes good use of:
 
-### 1.2 Primary Goal
-
-Build a working object-oriented application in which the classes in the
-class diagram are implemented as Java classes/interfaces, their
-responsibilities are respected, and the relationships between the
-objects are demonstrated through actual program execution.
-
-### 1.3 Design Principles
-
-The implementation should demonstrate:
-
+-   Classes and objects
 -   Encapsulation
 -   Abstraction
 -   Inheritance
--   Interface implementation
+-   Interfaces
 -   Polymorphism
 -   Delegation
--   Object composition/association
--   Collections using `List`
+-   Collections
 -   User-defined generic types
 -   Exception handling
--   Separation of responsibilities between classes
 
 ------------------------------------------------------------------------
 
-# 2. Scope
+# 2. Project Goals
 
-## 2.1 In Scope
+The application should allow a user to:
 
-The application must support:
+1.  Create and manage a camp.
+2.  Add participants, instructors and admin staff.
+3.  Create different types of activities.
+4.  Assign instructors to activities.
+5.  Register participants for activities.
+6.  Schedule activities.
+7.  Manage locations.
+8.  Manage equipment.
+9.  Allocate equipment to activities.
+10. Perform safety checks.
+11. Record attendance.
+12. Collect feedback.
+13. Send/display notifications.
+14. View a simple camp report.
 
-1.  Creating and managing a camp.
-2.  Creating participants, instructors and administrative staff.
-3.  Creating different activity types.
-4.  Assigning instructors to activities.
-5.  Adding participants to activities through registration.
-6.  Checking activity and camp capacity.
-7.  Scheduling activities.
-8.  Recording attendance.
-9.  Managing equipment.
-10. Allocating equipment to activities.
-11. Performing safety checks.
-12. Recording participant feedback.
-13. Sending notifications through the `Notifiable` interface.
-14. Generating a basic camp report.
-15. Handling expected application errors through custom exceptions.
-16. Storing reusable collections through the user-defined generic
-    `Repository<T>` class.
+The application should be small enough to complete within a semester
+while still demonstrating all important classes and relationships in the
+class diagram.
 
-## 2.2 Out of Scope
+------------------------------------------------------------------------
 
-Unless explicitly added later, the first version does not require:
+# 3. Technology Stack
 
--   A web application
--   A mobile application
--   A database
--   Online payment processing
--   User authentication
--   Cloud deployment
+Use a **minimal technology stack**.
+
+### Required
+
+-   **Java** --- application logic and object-oriented implementation
+-   **JavaFX** --- graphical user interface
+-   **CSS** --- only if needed for basic JavaFX styling
+
+### Optional build tool
+
+-   **Maven** --- dependency management and project build
+
+No other technology is required.
+
+### Explicitly do not use
+
+The project does **not** require:
+
+-   REST APIs
+-   Web services
 -   External APIs
--   Maps/GPS integration
--   Email/SMS provider integration
-
-The core requirement is a functional object-oriented application based
-on the supplied class structure.
-
-------------------------------------------------------------------------
-
-# 3. Users and Roles
-
-## 3.1 Participant
-
-A participant can:
-
--   Register for an activity.
--   Cancel a registration.
--   View the camp schedule.
--   Participate in activities.
--   Submit feedback for an activity.
-
-## 3.2 Instructor
-
-An instructor can:
-
--   Be assigned to activities.
--   Remove an activity assignment.
--   Conduct an activity.
--   Check the participants of an activity.
--   Send notifications.
--   View/manage assigned activities.
-
-## 3.3 Admin Staff
-
-Administrative staff can:
-
--   Manage camp information.
--   Add participants.
--   Assign instructors.
--   Schedule activities.
--   Generate camp reports.
--   Send notifications.
+-   Google Maps or map services
+-   Cloud services
+-   Authentication systems
+-   Online payment gateways
+-   SMS/email APIs
+-   Microservices
+-   Spring Boot
+-   React/Angular/other web frameworks
+-   Complex databases
+-   Docker
+-   Deployment infrastructure
 
 ------------------------------------------------------------------------
 
-# 4. Functional Requirements
+# 4. Data Storage
 
-## FR-01: Camp Management
+For this semester project, data should be stored **in memory** using
+Java collections.
 
-The system shall allow creation of a `Camp` containing:
+Do not introduce a database unless the project requirements are changed
+later.
 
--   Camp ID
--   Camp name
--   Start date
--   End date
--   Capacity
--   Status
--   A `CampSchedule`
--   A repository of registrations
--   A repository of safety checks
+Use:
 
-The `Camp` class shall coordinate major camp operations without
-redundantly storing participants, instructors and activities in separate
-lists.
+``` text
+List<T>
+```
 
-### Required operations
+where appropriate.
 
--   `registerParticipant(Participant, Activity)`
--   `scheduleActivity(Activity, DateTime)`
--   `generateReport()`
--   `checkCapacity()`
--   `addSafetyCheck(SafetyCheck)`
+The project must also demonstrate the user-defined generic class:
 
-------------------------------------------------------------------------
+``` text
+Repository<T>
+```
 
-## FR-02: Person Management
+which internally uses a `List<T>`.
 
-`Person` shall be an abstract base class.
+Example:
 
-The following classes shall inherit from `Person`:
+``` text
+Repository<Registration>
+Repository<ScheduleEntry>
+Repository<SafetyCheck>
+Repository<AttendanceRecord>
+```
 
--   `Participant`
--   `Instructor`
--   `AdminStaff`
+Data only needs to remain available while the application is running.
 
-Common information shall remain in `Person`.
-
-Specialized information and behavior shall remain in the subclasses.
+Persistent storage across application restarts is not required.
 
 ------------------------------------------------------------------------
 
-## FR-03: Participant Management
+# 5. Class Structure
 
-A `Participant` shall contain:
+The implementation must follow the approved class structure in:
 
--   Skill level
+`docs/class_structure.md`
+
+The class diagram is the source of truth for the major classes,
+inheritance relationships and interfaces.
+
+The implementation should not introduce unnecessary classes simply to
+make the project appear larger.
+
+Small helper classes are allowed when they directly support the existing
+design.
+
+------------------------------------------------------------------------
+
+# 6. Main Packages
+
+The project should use a simple package structure corresponding to the
+class diagram:
+
+``` text
+src/main/java/
+├── people/
+├── activities/
+├── equipment/
+├── management/
+└── exceptions/
+```
+
+A separate UI package may be added:
+
+``` text
+└── ui/
+```
+
+for JavaFX screens/controllers.
+
+The UI code should not contain the core business logic.
+
+------------------------------------------------------------------------
+
+# 7. People
+
+## 7.1 Person
+
+`Person` is the abstract parent class.
+
+It contains common information:
+
+-   ID
+-   Name
+-   Age
+-   Contact number
+
+It provides common methods such as:
+
+-   `getId()`
+-   `getName()`
+-   `setContactNumber()`
+-   `displayInfo()`
+
+`displayInfo()` should be abstract so subclasses provide their own
+implementation.
+
+## 7.2 Participant
+
+A participant should contain:
+
 -   Emergency contact
--   Medical record
+-   Medical notes
+-   Skill level
 -   Registrations
 
-A participant shall be able to:
+The participant can:
 
--   Register for an activity through the camp.
--   Cancel a registration.
--   View the camp schedule.
--   Submit feedback.
+-   Register for an activity
+-   Cancel a registration
+-   Submit feedback
+-   Display their information
 
-The participant's registrations shall be stored using:
+Registrations should be stored as:
 
-`List<Registration>`
+``` text
+List<Registration>
+```
 
-------------------------------------------------------------------------
+## 7.3 Instructor
 
-## FR-04: Instructor Management
-
-An `Instructor` shall contain:
+An instructor should contain:
 
 -   Specialization
 -   Certifications
--   Availability status
+-   Availability
 -   Assigned activities
 
-Assigned activities shall be stored using:
+Assigned activities should be stored as:
 
-`List<Activity>`
+``` text
+List<Activity>
+```
 
-The instructor shall support:
+The instructor can:
 
--   Assigning an activity
--   Removing an activity
--   Conducting an activity
--   Checking activity participants
--   Sending notifications
+-   Assign an activity
+-   Remove an activity
+-   Conduct an activity
+-   Check activity participants
+-   Send a notification
 
-The relationship between instructors and participants shall be mediated
-through activities.
+The instructor should **not** maintain a separate participant list.
 
-An instructor should not maintain a separate participant list.
+Participants are obtained through the instructor's assigned activities.
+
+## 7.4 AdminStaff
+
+Admin staff can:
+
+-   Manage camp information
+-   Manage registrations
+-   Send notifications
+-   Display staff information
 
 ------------------------------------------------------------------------
 
-# 5. Activity Management
+# 8. Activities
 
-## FR-05: Activity Abstraction
+## 8.1 Activity
 
-`Activity` shall be an abstract class.
+`Activity` is an abstract class and the main class for camp activities.
 
-It shall contain:
+It contains:
 
 -   Activity ID
 -   Title
@@ -242,212 +273,277 @@ It shall contain:
 -   Maximum participants
 -   Start time
 -   Location
--   Assigned instructor
+-   Instructor
 -   Participants
 -   Feedback
 -   Equipment allocations
 
-Participants shall be stored using:
+Use:
 
-`List<Participant>`
+``` text
+List<Participant>
+List<Feedback>
+List<EquipmentAllocation>
+```
 
-Feedback shall be stored using:
+where appropriate.
 
-`List<Feedback>`
+Required behavior includes:
 
-Equipment allocations shall be stored using:
+-   Check availability
+-   Conduct activity
+-   Get start time
+-   Get end time
+-   Update schedule
+-   Add participant
+-   Remove participant
+-   Get participants
+-   Add feedback
 
-`List<EquipmentAllocation>`
+## 8.2 Activity Types
 
-### Required operations
-
--   `checkAvailability()`
--   `conductActivity()`
--   `getStartTime()`
--   `getEndTime()`
--   `updateSchedule(DateTime)`
--   `addParticipant(Participant)`
--   `removeParticipant(Participant)`
--   `getParticipants()`
--   `addFeedback(Feedback)`
-
-## FR-06: Activity Types
-
-The system shall implement:
+Implement:
 
 -   `AdventureActivity`
 -   `WaterActivity`
 -   `TeamBuildingActivity`
 
-Each shall override `conductActivity()`.
+Each must override:
 
-Specialized activity behavior shall remain inside its corresponding
-subclass.
+``` text
+conductActivity()
+```
+
+The subclasses should have their own simple specialized properties.
 
 Examples:
 
--   Adventure activities shall support terrain/risk checks.
--   Water activities shall support lifeguard and water-body information.
--   Team-building activities shall support team formation.
+### AdventureActivity
+
+-   Terrain type
+-   Risk level
+
+### WaterActivity
+
+-   Whether a lifeguard is required
+-   Water body type
+
+### TeamBuildingActivity
+
+-   Team size
 
 ------------------------------------------------------------------------
 
-# 6. Scheduling
+# 9. Scheduling
 
-## FR-07: Schedulable Interface
+## 9.1 Schedulable
 
-`Schedulable` shall define:
+`Schedulable` is an interface containing:
 
 -   `getStartTime()`
 -   `getEndTime()`
 -   `updateSchedule(DateTime)`
 
-`Activity` shall implement `Schedulable`.
+`Activity` implements this interface.
 
-This demonstrates interface implementation and allows activities to be
-treated as schedulable objects.
+This should be demonstrated in the Java implementation.
 
-## FR-08: Camp Schedule
+## 9.2 CampSchedule
 
-`CampSchedule` shall manage scheduled activities through:
+`CampSchedule` manages scheduled activities.
 
-`Repository<ScheduleEntry>`
+It contains:
 
-It shall support:
+``` text
+Repository<ScheduleEntry>
+```
 
--   Adding an activity to the schedule
--   Removing an activity
--   Rescheduling an activity
--   Retrieving activities for a date
--   Displaying the schedule
+It should support:
 
-`Camp.scheduleActivity()` shall delegate the detailed scheduling
-operation to its `CampSchedule`.
+-   Add activity to schedule
+-   Remove activity
+-   Reschedule activity
+-   Get activities for a date
+-   Display schedule
 
-## FR-09: Schedule Entry
+`Camp` should delegate detailed scheduling work to its `CampSchedule`.
 
-`ScheduleEntry` shall represent one scheduled activity occurrence.
+## 9.3 ScheduleEntry
 
-It shall contain:
+`ScheduleEntry` represents one scheduled activity.
 
--   Entry date
--   Activity
+It stores:
+
+-   Entry ID
+-   Date
 -   Start time
 -   End time
-
-It shall support updating its scheduled time.
-
-------------------------------------------------------------------------
-
-# 7. Registration
-
-## FR-10: Participant Registration
-
-A participant shall register for an activity through the camp.
-
-Expected flow:
-
-1.  Participant requests registration.
-2.  Camp checks capacity.
-3.  Activity availability is checked.
-4.  Registration eligibility is checked.
-5.  A `Registration` object is created.
-6.  The registration is stored in the camp's `Repository<Registration>`.
-7.  The registration is associated with its participant and activity.
-8.  The activity receives the participant if registration succeeds.
-
-## FR-11: Registration Lifecycle
-
-`Registration` shall support:
-
--   Processing registration
--   Eligibility checking
--   Confirmation
--   Cancellation
--   Status retrieval
-
-Possible status values may include:
-
--   Pending
--   Confirmed
--   Cancelled
-
-The implementation should use constants or an enum if appropriate rather
-than scattering literal status strings throughout the code.
+-   Activity
 
 ------------------------------------------------------------------------
 
-# 8. Attendance
+# 10. Camp
 
-## FR-12: Attendance Management
+`Camp` is the main management class.
 
-`Attendance` shall maintain attendance records for activity
-participation.
+It should contain only the information it is genuinely responsible for.
 
-It shall contain:
+It should **not** contain redundant:
 
-`Repository<AttendanceRecord>`
+``` text
+List<Participant>
+List<Instructor>
+List<Activity>
+```
 
-An `AttendanceRecord` shall contain:
+because these relationships are already maintained by the relevant
+classes.
+
+`Camp` should contain:
+
+-   Camp ID
+-   Camp name
+-   Start date
+-   End date
+-   Capacity
+-   Status
+-   `CampSchedule`
+-   `Repository<Registration>`
+-   `Repository<SafetyCheck>`
+
+Required methods:
+
+-   `registerParticipant(Participant, Activity)`
+-   `scheduleActivity(Activity, DateTime)`
+-   `generateReport()`
+-   `checkCapacity()`
+-   `addSafetyCheck(SafetyCheck)`
+
+The `Camp` class should act as a coordinator rather than becoming a
+large storage class.
+
+------------------------------------------------------------------------
+
+# 11. Registration
+
+`Registration` represents a participant's registration for an activity.
+
+It contains:
+
+-   Registration ID
+-   Registration date
+-   Status
+-   Participant
+-   Activity
+
+It supports:
+
+-   Process registration
+-   Confirm registration
+-   Cancel registration
+
+### Registration flow
+
+``` text
+Participant
+    ↓
+Camp.registerParticipant()
+    ↓
+Check camp/activity capacity
+    ↓
+Create Registration
+    ↓
+Store Registration
+    ↓
+Add Participant to Activity
+```
+
+If registration is invalid, the appropriate exception should be thrown.
+
+------------------------------------------------------------------------
+
+# 12. Attendance
+
+`Attendance` manages attendance for activities.
+
+It contains:
+
+``` text
+Repository<AttendanceRecord>
+```
+
+`AttendanceRecord` identifies:
 
 -   Participant
 -   Activity
 -   Date
 -   Present/absent status
 
-The system shall support:
+The application should allow the user to:
 
--   Marking a participant present
--   Marking a participant absent
--   Checking a participant's attendance
--   Generating an attendance report
-
-Attendance shall be associated with the participant and activity through
-`AttendanceRecord`.
+-   Select an activity
+-   View its participants
+-   Mark participants present or absent
+-   View a simple attendance report
 
 ------------------------------------------------------------------------
 
-# 9. Equipment Management
+# 13. Equipment
 
-## FR-13: Equipment Abstraction
+## 13.1 Equipment
 
-`Equipment` shall be an abstract class.
+`Equipment` is an abstract class.
 
-It shall contain:
+It contains:
 
 -   Equipment ID
 -   Name
 -   Availability
 -   Condition
 
-It shall support:
+It supports:
 
--   Condition checking
--   Allocation
+-   Check condition
+-   Allocate
 -   Release
--   Activity compatibility/availability checking
+-   Check whether it is available for an activity
 
-## FR-14: Equipment Types
+## 13.2 SafetyEquipment
 
-The system shall implement:
+Contains:
 
--   `SafetyEquipment`
--   `SportsEquipment`
+-   Last inspection date
+-   Safety rating
 
-Both shall inherit from `Equipment`.
+Overrides:
 
-`SafetyEquipment` shall additionally support safety inspection and
-safety rating.
+``` text
+checkCondition()
+```
 
-`SportsEquipment` shall support sport type, condition and activity
-compatibility.
+## 13.3 SportsEquipment
 
-## FR-15: Equipment Allocation
+Contains:
 
-`EquipmentAllocation` shall represent an equipment assignment to an
+-   Sport type
+-   Condition
+
+Overrides:
+
+``` text
+checkCondition()
+```
+
+and supports compatibility checking with activities.
+
+------------------------------------------------------------------------
+
+# 14. Equipment Allocation
+
+`EquipmentAllocation` represents equipment being assigned to an
 activity.
 
-It shall contain:
+It contains:
 
 -   Allocation ID
 -   Allocation date
@@ -456,52 +552,56 @@ It shall contain:
 -   Equipment
 -   Activity
 
-It shall support:
+It supports:
 
--   Allocating equipment
--   Returning equipment
--   Checking availability
--   Retrieving allocation status
+-   Allocate equipment
+-   Return equipment
+-   Check availability
+-   Get allocation status
 
-The same equipment object should not be allocated to incompatible or
-unavailable activities.
+Example:
+
+``` text
+Activity
+    ↓
+EquipmentAllocation
+    ↓
+Equipment
+```
 
 ------------------------------------------------------------------------
 
-# 10. Safety Management
+# 15. Safety
 
-## FR-16: Safety Checks
+`SafetyCheck` represents a safety inspection.
 
-`SafetyCheck` shall record:
+It contains:
 
 -   Check ID
 -   Check date
--   Pass/fail result
+-   Passed/failed result
 -   Remarks
 
-It shall support:
+It supports:
 
--   Performing an equipment safety check
+-   Performing an equipment check
 -   Checking activity safety
 -   Recording the result
--   Checking whether the inspection passed
+-   Checking whether the check passed
 
-`Camp` shall maintain safety checks using:
+The camp stores safety checks using:
 
-`Repository<SafetyCheck>`
-
-Safety checks should be performed before an activity is allowed to
-proceed when required safety conditions have not been satisfied.
+``` text
+Repository<SafetyCheck>
+```
 
 ------------------------------------------------------------------------
 
-# 11. Location Management
+# 16. Location
 
-## FR-17: Location
+`Location` represents the place where an activity occurs.
 
-`Location` shall represent the physical location of an activity.
-
-It shall contain:
+It contains:
 
 -   Location ID
 -   Name
@@ -509,27 +609,27 @@ It shall contain:
 -   Terrain type
 -   Capacity
 
-It shall support:
+It supports:
 
 -   Checking availability
 -   Reserving a time
 -   Releasing a reservation
--   Returning location details
+-   Displaying location details
 
-An activity shall reference its assigned `Location`.
+An activity should have a `Location`.
 
-The implementation should prevent scheduling an activity at a location
-when the location is unavailable for the requested time.
+No external map service is required.
+
+The location can simply be selected from the locations created inside
+the application.
 
 ------------------------------------------------------------------------
 
-# 12. Feedback
+# 17. Feedback
 
-## FR-18: Activity Feedback
+Participants can submit feedback for activities.
 
-Participants shall be able to submit feedback for activities.
-
-`Feedback` shall contain:
+`Feedback` contains:
 
 -   Feedback ID
 -   Rating
@@ -538,51 +638,58 @@ Participants shall be able to submit feedback for activities.
 -   Participant
 -   Activity
 
-The system shall support:
+It supports:
 
--   Submitting feedback
--   Updating comments
--   Retrieving feedback
+-   Submit feedback
+-   Update comment
+-   Get feedback
 
-Feedback shall be associated with both the participant who submitted it
-and the activity being reviewed.
+A simple rating such as 1--5 is sufficient.
 
 ------------------------------------------------------------------------
 
-# 13. Notifications
+# 18. Notifications
 
-## FR-19: Notifiable Interface
+`Notifiable` is an interface containing:
 
-`Notifiable` shall define:
+``` text
+sendNotification(String)
+```
 
-`sendNotification(String)`
-
-The following classes shall implement it:
+It is implemented by:
 
 -   `Instructor`
 -   `AdminStaff`
 
-The interface shall allow notification behavior to be handled
-polymorphically.
+For this project, notification functionality can simply display a
+message in the UI or console.
 
-The initial implementation may display notifications through the console
-rather than integrating an external messaging service.
+No external notification service is required.
+
+Example:
+
+``` text
+Notification:
+"Water Rafting starts at 10:00 AM."
+```
 
 ------------------------------------------------------------------------
 
-# 14. User-Defined Generic Type
+# 19. Generic Type
 
-## FR-20: Repository`<T>`{=html}
+The project must include the user-defined generic class:
 
-The project shall implement a user-defined generic class:
+``` text
+Repository<T>
+```
 
-`Repository<T>`
+It should internally use:
 
-It shall internally use:
+``` text
+List<T>
+```
 
-`List<T>`
-
-### Required operations
+and provide:
 
 -   `add(T)`
 -   `remove(T)`
@@ -590,520 +697,506 @@ It shall internally use:
 -   `getAll()`
 -   `size()`
 
-The generic class shall be reusable for different domain objects.
+It should be used with multiple types.
 
-Examples:
-
--   `Repository<Registration>`
--   `Repository<SafetyCheck>`
--   `Repository<ScheduleEntry>`
--   `Repository<AttendanceRecord>`
-
-The implementation must demonstrate that the same generic class can
-operate with different object types without duplicating
-collection-management code.
-
-------------------------------------------------------------------------
-
-# 15. Exception Handling
-
-## FR-21: Exception Hierarchy
-
-All custom exceptions shall inherit from:
-
-`CampException`
-
-The subclasses shall be:
-
--   `RegistrationException`
--   `EquipmentUnavailableException`
--   `SafetyViolationException`
--   `CapacityExceededException`
-
-## FR-22: Capacity Exception
-
-`Camp.registerParticipant()` shall throw `CapacityExceededException`
-when the camp or relevant activity cannot accept another participant.
-
-## FR-23: Registration Exception
-
-Registration processing shall throw `RegistrationException` when
-registration cannot be completed because eligibility, status or other
-registration rules fail.
-
-## FR-24: Equipment Exception
-
-`EquipmentAllocation.allocateEquipment()` shall throw
-`EquipmentUnavailableException` when the requested equipment cannot be
-allocated.
-
-## FR-25: Safety Exception
-
-Safety operations shall throw `SafetyViolationException` when required
-safety conditions are not satisfied.
-
-Exceptions shall be caught at an appropriate application/control layer
-and presented as meaningful error messages.
-
-------------------------------------------------------------------------
-
-# 16. Core Business Workflows
-
-## 16.1 Register Participant
+At minimum:
 
 ``` text
-Participant
-    ↓
-Camp.registerParticipant()
-    ↓
-Camp.checkCapacity()
-    ↓
-Activity.checkAvailability()
-    ↓
-Registration.checkEligibility()
-    ↓
-Create Registration
-    ↓
-Repository<Registration>.add()
-    ↓
-Activity.addParticipant()
-```
-
-Failure at a validation step shall result in the appropriate custom
-exception.
-
-## 16.2 Schedule Activity
-
-``` text
-AdminStaff / Camp
-    ↓
-Camp.scheduleActivity()
-    ↓
-CampSchedule.addActivityToSchedule()
-    ↓
-Create ScheduleEntry
-    ↓
-Repository<ScheduleEntry>.add()
-```
-
-## 16.3 Assign Instructor
-
-``` text
-Instructor.assignActivity()
-    ↓
-Activity.instructor = Instructor
-    ↓
-Instructor.assignedActivities.add(Activity)
-```
-
-An instructor's participant information shall be obtained from the
-assigned activity rather than maintained separately.
-
-## 16.4 Allocate Equipment
-
-``` text
-Activity
-    ↓
-EquipmentAllocation.allocateEquipment()
-    ↓
-Equipment.isAvailableFor(Activity)
-    ↓
-Equipment.allocate()
-    ↓
-Store EquipmentAllocation
-```
-
-If equipment is unavailable:
-
-``` text
-EquipmentUnavailableException
-```
-
-## 16.5 Record Attendance
-
-``` text
-Attendance.markActivityAttendance()
-    ↓
-Create/Update AttendanceRecord
-    ↓
+Repository<Registration>
+Repository<ScheduleEntry>
+Repository<SafetyCheck>
 Repository<AttendanceRecord>
 ```
 
-## 16.6 Perform Safety Check
+This demonstrates that the same user-defined generic class can store
+different object types.
+
+------------------------------------------------------------------------
+
+# 20. Exceptions
+
+Create the following hierarchy:
 
 ``` text
-SafetyCheck.performCheck()
-    ↓
-Equipment / Activity safety validation
-    ↓
-recordResult()
-    ↓
-Camp.safetyChecks
+CampException
+├── RegistrationException
+├── EquipmentUnavailableException
+├── SafetyViolationException
+└── CapacityExceededException
 ```
 
-If required safety conditions fail:
+## RegistrationException
+
+Thrown when a registration cannot be completed.
+
+## EquipmentUnavailableException
+
+Thrown when equipment cannot be allocated.
+
+## SafetyViolationException
+
+Thrown when a required safety condition fails.
+
+## CapacityExceededException
+
+Thrown when the camp/activity has reached its capacity.
+
+The UI should catch these exceptions and show a simple user-friendly
+message rather than crashing.
+
+------------------------------------------------------------------------
+
+# 21. User Interface
+
+The application should have a **simple desktop UI using JavaFX**.
+
+The UI does not need to be elaborate.
+
+The main goal is that a user can understand the application without
+needing to interact with Java objects directly.
+
+## 21.1 Main Window
+
+Use a simple layout such as:
 
 ``` text
-SafetyViolationException
++------------------------------------------------+
+| Adventure Camp Management System               |
++----------------+-------------------------------+
+| Dashboard      |                               |
+| Participants   |       Main Content            |
+| Instructors    |                               |
+| Activities     |                               |
+| Schedule       |                               |
+| Equipment      |                               |
+| Attendance     |                               |
+| Safety         |                               |
+| Feedback       |                               |
+| Reports        |                               |
++----------------+-------------------------------+
 ```
 
+A sidebar/navigation panel is sufficient.
+
+## 21.2 Dashboard
+
+Show simple information such as:
+
+-   Camp name
+-   Camp dates
+-   Number of registrations
+-   Number of activities
+-   Upcoming activity
+-   Basic capacity information
+
+Do not build complex charts unless they are useful and easy to
+implement.
+
+## 21.3 Participants Screen
+
+Allow the user to:
+
+-   View participants
+-   Add a participant
+-   View participant details
+-   Register a participant for an activity
+
+Use a simple table and forms.
+
+## 21.4 Instructors Screen
+
+Allow the user to:
+
+-   View instructors
+-   Add an instructor
+-   Assign an instructor to an activity
+-   View assigned activities
+
+## 21.5 Activities Screen
+
+Allow the user to:
+
+-   View activities
+-   Create an activity
+-   Choose activity type
+-   Assign instructor
+-   Select location
+-   View participants
+-   Add/remove participants
+
+## 21.6 Schedule Screen
+
+Display scheduled activities by date.
+
+Allow:
+
+-   Schedule activity
+-   Reschedule activity
+-   Remove activity
+
+A simple table grouped or filtered by date is sufficient.
+
+## 21.7 Equipment Screen
+
+Allow the user to:
+
+-   View equipment
+-   Add equipment
+-   View availability
+-   Allocate equipment
+-   Return equipment
+
+## 21.8 Attendance Screen
+
+Allow the user to:
+
+1.  Select an activity.
+2.  View registered participants.
+3.  Mark present/absent.
+4.  View attendance.
+
+## 21.9 Safety Screen
+
+Allow the user to:
+
+-   Select equipment/activity
+-   Perform a safety check
+-   Enter remarks
+-   View pass/fail result
+
+## 21.10 Feedback Screen
+
+Allow the user to:
+
+-   Select an activity
+-   Select a participant
+-   Enter rating
+-   Enter comments
+-   View submitted feedback
+
+## 21.11 Reports Screen
+
+Provide a simple text/table-based report containing information such as:
+
+-   Camp information
+-   Activities
+-   Instructors
+-   Registrations
+-   Attendance
+-   Equipment allocation
+-   Safety checks
+
+No advanced reporting framework is required.
+
 ------------------------------------------------------------------------
 
-# 17. Data and Storage Requirements
+# 22. UI Design Requirements
 
-For the first implementation, data may be stored in memory using Java
-collections.
+The UI should be:
 
-No database is required.
+-   Simple
+-   Consistent
+-   Easy to navigate
+-   Readable
+-   Appropriate for a college project
 
-The main storage structures are:
+Use:
 
-  -----------------------------------------------------------------------
-  Domain                              Storage
-  ----------------------------------- -----------------------------------
-  Participant registrations           `List<Registration>` inside
-                                      `Participant`
+-   Buttons
+-   Labels
+-   Text fields
+-   Combo boxes
+-   Tables
+-   Date pickers where useful
+-   Dialog boxes for errors and confirmations
 
-  Assigned activities                 `List<Activity>` inside
-                                      `Instructor`
+Avoid unnecessary animations and complicated UI components.
 
-  Activity participants               `List<Participant>` inside
-                                      `Activity`
-
-  Activity feedback                   `List<Feedback>` inside `Activity`
-
-  Activity equipment allocations      `List<EquipmentAllocation>` inside
-                                      `Activity`
-
-  Schedule entries                    `Repository<ScheduleEntry>`
-
-  Camp registrations                  `Repository<Registration>`
-
-  Camp safety checks                  `Repository<SafetyCheck>`
-
-  Attendance records                  `Repository<AttendanceRecord>`
-  -----------------------------------------------------------------------
-
-The system should avoid maintaining multiple independent collections for
-the same relationship unless there is a clear responsibility for each
-collection.
+A small amount of CSS can be used to make the application visually
+consistent.
 
 ------------------------------------------------------------------------
 
-# 18. Package Structure
+# 23. Application Flow
 
-The implementation should follow the logical package structure
-represented by the class diagram:
+A typical demonstration should work like this:
 
 ``` text
-src/
-└── main/
-    └── java/
-        ├── people/
-        │   ├── Person.java
-        │   ├── Participant.java
-        │   ├── Instructor.java
-        │   ├── AdminStaff.java
-        │   ├── EmergencyContact.java
-        │   └── MedicalRecord.java
-        │
-        ├── activities/
-        │   ├── Activity.java
-        │   ├── AdventureActivity.java
-        │   ├── WaterActivity.java
-        │   ├── TeamBuildingActivity.java
-        │   ├── Schedulable.java
-        │   ├── Location.java
-        │   └── Feedback.java
-        │
-        ├── equipment/
-        │   ├── Equipment.java
-        │   ├── SafetyEquipment.java
-        │   └── SportsEquipment.java
-        │
-        ├── management/
-        │   ├── Camp.java
-        │   ├── CampSchedule.java
-        │   ├── ScheduleEntry.java
-        │   ├── Registration.java
-        │   ├── Attendance.java
-        │   ├── AttendanceRecord.java
-        │   ├── SafetyCheck.java
-        │   ├── EquipmentAllocation.java
-        │   ├── Notifiable.java
-        │   └── Repository.java
-        │
-        └── exceptions/
-            ├── CampException.java
-            ├── RegistrationException.java
-            ├── EquipmentUnavailableException.java
-            ├── SafetyViolationException.java
-            └── CapacityExceededException.java
+Start Application
+      ↓
+Create / Load Sample Camp
+      ↓
+Dashboard
+      ↓
+Create Participants
+      ↓
+Create Instructor
+      ↓
+Create Activity
+      ↓
+Assign Instructor
+      ↓
+Select Location
+      ↓
+Schedule Activity
+      ↓
+Register Participants
+      ↓
+Perform Safety Check
+      ↓
+Allocate Equipment
+      ↓
+Mark Attendance
+      ↓
+Conduct Activity
+      ↓
+Submit Feedback
+      ↓
+View Report
 ```
 
-The package names and final file locations should remain consistent with
-the actual implementation.
+The project may preload a small set of sample data so that the
+application can be demonstrated immediately.
 
 ------------------------------------------------------------------------
 
-# 19. Non-Functional Requirements
+# 24. Sample Data
 
-## NFR-01: Object-Oriented Design
+For easier demonstration, the application may start with sample data
+such as:
 
-The implementation shall use the classes and relationships in
-`docs/class_structure.md` rather than implementing the application as
-one large procedural class.
+### Participants
 
-## NFR-02: Maintainability
+-   3--5 participants
 
-Each class shall have a clear responsibility.
+### Instructors
 
-Business logic should not be duplicated across multiple classes.
-
-## NFR-03: Type Safety
-
-The user-defined `Repository<T>` shall use Java generics rather than raw
-collections.
-
-Raw types should be avoided.
-
-## NFR-04: Encapsulation
-
-Attributes shall normally be private.
-
-Access and modification should happen through appropriate methods.
-
-## NFR-05: Validation
-
-Invalid operations should be rejected using validation and the
-appropriate custom exception.
-
-## NFR-06: Extensibility
-
-The design should allow additional activity types and equipment types to
-be introduced through inheritance without changing the base abstractions
-unnecessarily.
-
-------------------------------------------------------------------------
-
-# 20. Acceptance Criteria
-
-The project is considered functionally complete when the following can
-be demonstrated in a test/demo program:
-
-### People
-
--   [ ] A participant can be created.
--   [ ] An instructor can be created.
--   [ ] An admin staff member can be created.
--   [ ] Common person behavior is inherited from `Person`.
+-   2 instructors
 
 ### Activities
 
--   [ ] Adventure, water and team-building activities can be created.
--   [ ] Each activity type overrides `conductActivity()`.
--   [ ] An activity can have an instructor.
--   [ ] An activity can contain multiple participants.
--   [ ] An activity can have feedback and equipment allocations.
-
-### Scheduling
-
--   [ ] An activity can be scheduled.
--   [ ] A scheduled activity is represented by a `ScheduleEntry`.
--   [ ] Activities can be rescheduled.
--   [ ] Activities for a specific date can be retrieved.
-
-### Registration
-
--   [ ] A participant can register for an activity.
--   [ ] Registration status can be changed.
--   [ ] Registration can be cancelled.
--   [ ] Capacity is checked.
--   [ ] Invalid registration produces `RegistrationException`.
--   [ ] Capacity failure produces `CapacityExceededException`.
-
-### Attendance
-
--   [ ] Attendance can be marked.
--   [ ] Attendance records identify the participant and activity.
--   [ ] Attendance reports can be generated.
+-   Rock Climbing
+-   Kayaking
+-   Team Challenge
 
 ### Equipment
 
--   [ ] Equipment can be allocated.
--   [ ] Equipment can be returned.
--   [ ] Availability is checked before allocation.
--   [ ] Unavailable equipment produces `EquipmentUnavailableException`.
+-   Helmets
+-   Life Jackets
+-   Climbing Ropes
 
-### Safety
+### Locations
 
--   [ ] Equipment safety checks can be performed.
--   [ ] Activity safety can be checked.
--   [ ] Results and remarks can be recorded.
--   [ ] Safety violations produce `SafetyViolationException`.
+-   Climbing Wall
+-   River Zone
+-   Camp Ground
 
-### Feedback
+The user should still be able to add additional objects through the UI.
 
--   [ ] A participant can submit feedback for an activity.
--   [ ] Feedback can be updated.
--   [ ] Feedback can be retrieved.
+------------------------------------------------------------------------
+
+# 25. Error Handling in the UI
+
+When an operation fails, display a simple dialog.
+
+Examples:
+
+``` text
+Registration Failed
+The activity has reached its maximum participant capacity.
+```
+
+``` text
+Equipment Unavailable
+The selected equipment is currently allocated to another activity.
+```
+
+``` text
+Safety Check Failed
+The activity cannot proceed because the required safety check failed.
+```
+
+The application should remain running after an error.
+
+------------------------------------------------------------------------
+
+# 26. Testing Requirements
+
+Testing should focus on demonstrating that the class structure works.
+
+At minimum test:
+
+### Inheritance
+
+-   `Participant`, `Instructor`, and `AdminStaff` inherit from `Person`.
+-   Activity subclasses inherit from `Activity`.
+-   Equipment subclasses inherit from `Equipment`.
 
 ### Interfaces
 
--   [ ] `Activity` implements `Schedulable`.
--   [ ] `Instructor` implements `Notifiable`.
--   [ ] `AdminStaff` implements `Notifiable`.
+-   `Activity` implements `Schedulable`.
+-   `Instructor` implements `Notifiable`.
+-   `AdminStaff` implements `Notifiable`.
 
-### Generics
+### Registration
 
--   [ ] `Repository<T>` is implemented as a user-defined generic class.
--   [ ] It works with at least four different types.
--   [ ] It internally uses `List<T>`.
--   [ ] No raw `Repository` types are used.
+-   Successful registration.
+-   Duplicate/invalid registration.
+-   Capacity exceeded.
 
-### Exceptions
+### Scheduling
 
--   [ ] All custom exceptions inherit from `CampException`.
--   [ ] Exceptions are thrown from the appropriate business operations.
--   [ ] Exceptions are handled without terminating the application
-    unexpectedly.
+-   Add activity.
+-   Remove activity.
+-   Reschedule activity.
 
-------------------------------------------------------------------------
+### Equipment
 
-# 21. Demonstration Scenario
+-   Successful allocation.
+-   Return equipment.
+-   Allocation failure.
 
-The final application should be able to demonstrate a realistic
-end-to-end scenario:
+### Safety
 
-1.  Create an adventure camp.
-2.  Create several participants.
-3.  Create an instructor.
-4.  Create an adventure activity.
-5.  Assign the instructor to the activity.
-6.  Assign a location.
-7.  Schedule the activity.
-8.  Register participants.
-9.  Perform a safety check.
-10. Allocate required equipment.
-11. Conduct the activity.
-12. Mark participant attendance.
-13. Collect participant feedback.
-14. Generate a camp report.
-15. Demonstrate at least one handled exception.
+-   Passed safety check.
+-   Failed safety check.
 
-The demonstration should show object interaction rather than simply
-constructing objects without using their behavior.
+### Attendance
 
-------------------------------------------------------------------------
+-   Mark present.
+-   Mark absent.
+-   Generate attendance report.
 
-# 22. Implementation Priority
+### Feedback
 
-## Phase 1 --- Core Domain
+-   Submit feedback.
+-   Update feedback.
 
-Implement:
+### Generic Repository
 
-1.  `Person`
-2.  `Participant`
-3.  `Instructor`
-4.  `AdminStaff`
-5.  `Activity`
-6.  Activity subclasses
-7.  `Location`
+Demonstrate:
 
-## Phase 2 --- Camp and Scheduling
+``` text
+Repository<Registration>
+Repository<Activity>
+Repository<AttendanceRecord>
+```
 
-Implement:
-
-1.  `Camp`
-2.  `CampSchedule`
-3.  `ScheduleEntry`
-4.  `Schedulable`
-
-## Phase 3 --- Registration and Attendance
-
-Implement:
-
-1.  `Registration`
-2.  `Attendance`
-3.  `AttendanceRecord`
-
-## Phase 4 --- Equipment and Safety
-
-Implement:
-
-1.  `Equipment`
-2.  `SafetyEquipment`
-3.  `SportsEquipment`
-4.  `EquipmentAllocation`
-5.  `SafetyCheck`
-
-## Phase 5 --- Feedback and Notifications
-
-Implement:
-
-1.  `Feedback`
-2.  `Notifiable`
-3.  Notification behavior
-
-## Phase 6 --- Generic Repository
-
-Implement:
-
-1.  `Repository<T>`
-2.  Replace applicable direct collection-management code with the
-    repository.
-3.  Demonstrate the repository with multiple types.
-
-## Phase 7 --- Exceptions
-
-Implement:
-
-1.  `CampException`
-2.  `RegistrationException`
-3.  `EquipmentUnavailableException`
-4.  `SafetyViolationException`
-5.  `CapacityExceededException`
-
-Integrate them into the relevant operations.
-
-## Phase 8 --- Integration and Testing
-
-Create a main/demo program that exercises the complete workflow and
-verifies the acceptance criteria.
+or other suitable types.
 
 ------------------------------------------------------------------------
 
-# 23. Technical Constraints
+# 27. Recommended Project Structure
 
--   Use Java.
--   Follow the class structure in `docs/class_structure.md`.
--   Use `List` for collection storage where appropriate.
--   Do not introduce `Map` unless the project requirements are
-    explicitly changed.
--   Implement `Repository<T>` as a user-defined generic type.
--   Keep inheritance relationships consistent with the class diagram.
--   Keep interfaces as interfaces.
--   Keep custom exceptions in the exception hierarchy.
--   Avoid redundant collections that duplicate ownership of the same
-    relationship.
--   Keep classes focused on their defined responsibilities.
+``` text
+AdventureCamp/
+│
+├── docs/
+│   └── class_structure.md
+│
+├── src/
+│   └── main/
+│       ├── java/
+│       │   ├── people/
+│       │   ├── activities/
+│       │   ├── equipment/
+│       │   ├── management/
+│       │   ├── exceptions/
+│       │   └── ui/
+│       │
+│       └── resources/
+│           └── styles.css
+│
+├── pom.xml
+└── README.md
+```
+
+A test directory may be added if unit tests are required:
+
+``` text
+src/test/java/
+```
 
 ------------------------------------------------------------------------
 
-# 24. Definition of Done
+# 28. What Should Not Be Over-Engineered
 
-The project is done when:
+This is a semester project. Prefer straightforward implementations.
 
-1.  All classes in the approved class structure are implemented.
-2.  All inheritance relationships compile and work.
-3.  All interfaces are implemented.
-4.  Core relationships between participants, instructors, activities,
-    equipment and management classes work.
-5.  Registration, scheduling, attendance, safety, equipment allocation
-    and feedback workflows execute successfully.
-6.  Custom exceptions are thrown and handled correctly.
-7.  `Repository<T>` is implemented and used with multiple domain types.
-8.  The project compiles without errors.
-9.  A demonstration program exercises the major use cases.
-10. The implementation remains consistent with
-    `docs/class_structure.md`.
+Do not add:
+
+-   Database layers
+-   Repository/service/controller architectures beyond what is necessary
+-   Dependency injection frameworks
+-   REST controllers
+-   API clients
+-   Authentication
+-   Complex design patterns
+-   Cloud infrastructure
+-   Multi-user concurrency
+-   Advanced analytics
+-   External messaging systems
+-   Map integrations
+-   Payment systems
+
+The objective is to make the **existing object-oriented design work
+well**, not to create an enterprise application.
+
+------------------------------------------------------------------------
+
+# 29. Definition of Done
+
+The project is complete when:
+
+-   All classes in `docs/class_structure.md` are implemented.
+-   Inheritance relationships work.
+-   Interfaces are implemented.
+-   Instructor/activity/participant relationships work.
+-   Activities can be created and scheduled.
+-   Participants can register for activities.
+-   Capacity is checked.
+-   Attendance can be recorded.
+-   Equipment can be allocated and returned.
+-   Safety checks can be performed.
+-   Feedback can be submitted.
+-   Notifications can be displayed.
+-   Custom exceptions work.
+-   `Repository<T>` is implemented and used with multiple types.
+-   The JavaFX UI provides access to the major features.
+-   The application can be demonstrated from start to finish.
+-   No external API, database or cloud service is required.
+-   The application remains understandable to a student reviewing the
+    source code.
+
+------------------------------------------------------------------------
+
+# 30. Final Project Principle
+
+Keep the implementation **simple, functional and consistent with the
+class diagram**.
+
+The project should demonstrate that the team understands how the classes
+interact in an object-oriented system.
+
+A smaller implementation that clearly demonstrates:
+
+``` text
+Inheritance
+     +
+Interfaces
+     +
+Composition / Association
+     +
+Delegation
+     +
+Lists
+     +
+Generic Repository<T>
+     +
+Exception Handling
+     +
+JavaFX UI
+```
+
+is preferable to a technically complex application that introduces
+unnecessary technologies.
