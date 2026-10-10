@@ -4,540 +4,557 @@ import activities.*;
 import equipment.*;
 import people.*;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * DataManager handles all persistence for the Adventure Camp Management System.
+ *
+ * Data is stored as CSV files in the configured data directory.
+ * Each entity type has its own CSV file with a header row.
+ *
+ * CSV files:
+ *   camp.csv                  - Single row with camp metadata
+ *   locations.csv             - One row per location
+ *   instructors.csv           - One row per instructor (certifications semicolon-separated)
+ *   participants.csv          - One row per participant
+ *   equipment.csv             - One row per equipment item (type-specific columns included)
+ *   activities.csv            - One row per activity (type-specific columns included)
+ *   schedules.csv             - One row per schedule entry
+ *   registrations.csv         - One row per registration
+ *   safety_checks.csv         - One row per safety check
+ *   equipment_allocations.csv - One row per equipment allocation
+ *   attendance.csv            - One row per attendance record
+ *   feedbacks.csv             - One row per feedback submission
+ */
 public class DataManager {
-    public static final String DEFAULT_DB_PATH = "data/database.json";
 
-    public static Camp loadCamp(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
+    /** Directory where all CSV data files are stored. */
+    public static final String DEFAULT_DB_PATH = "data";
+
+    // -------------------------------------------------------------------------
+    // PUBLIC API
+    // -------------------------------------------------------------------------
+
+    /**
+     * Loads the entire camp state from CSV files in the given directory.
+     * If the directory does not exist, default seed data is created and saved.
+     *
+     * @param dataDir path to the data directory (e.g. "data")
+     * @return a fully populated Camp object
+     */
+    public static Camp loadCamp(String dataDir) {
+        File dir = new File(dataDir);
+
+        if (!dir.exists()) {
             Camp defaultCamp = createDefaultCamp();
-            saveCamp(defaultCamp, filePath);
+            saveCamp(defaultCamp, dataDir);
             return defaultCamp;
         }
 
         try {
-            String jsonStr = new String(Files.readAllBytes(Paths.get(filePath)));
-            Object rootObj = SimpleJsonParser.parse(jsonStr);
-            if (!(rootObj instanceof Map)) {
-                Camp defaultCamp = createDefaultCamp();
-                saveCamp(defaultCamp, filePath);
-                return defaultCamp;
-            }
+            // Load in dependency order so foreign-key lookups always find their targets
+            Camp camp = loadCampMetadata(dataDir);
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> root = (Map<String, Object>) rootObj;
+            Map<String, Location>    locationById    = loadLocations(dataDir, camp);
+            Map<String, Instructor>  instructorById  = loadInstructors(dataDir, camp);
+            Map<String, Participant> participantById = loadParticipants(dataDir, camp);
+            Map<String, Equipment>   equipmentById   = loadEquipment(dataDir, camp);
+            Map<String, Activity>    activityById    = loadActivities(dataDir, camp, locationById, instructorById);
 
-            // 1. Camp basic details
-            @SuppressWarnings("unchecked")
-            Map<String, Object> campMap = (Map<String, Object>) root.get("camp");
-            String campId = campMap != null ? (String) campMap.getOrDefault("campId", "C1") : "C1";
-            String campName = campMap != null ? (String) campMap.getOrDefault("campName", "Adventure Camp") : "Adventure Camp";
-            LocalDate startDate = campMap != null && campMap.get("startDate") != null ? LocalDate.parse((String) campMap.get("startDate")) : LocalDate.now();
-            LocalDate endDate = campMap != null && campMap.get("endDate") != null ? LocalDate.parse((String) campMap.get("endDate")) : LocalDate.now().plusDays(7);
-            int capacity = campMap != null && campMap.get("capacity") != null ? ((Number) campMap.get("capacity")).intValue() : 100;
-
-            Camp camp = new Camp(campId, campName, startDate, endDate, capacity);
-
-            // 2. Locations
-            @SuppressWarnings("unchecked")
-            List<Object> locList = (List<Object>) root.getOrDefault("locations", Collections.emptyList());
-            Map<String, Location> locationMap = new HashMap<>();
-            for (Object item : locList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String lId = (String) m.get("locationId");
-                    String name = (String) m.get("name");
-                    String address = (String) m.getOrDefault("address", "");
-                    String terrain = (String) m.getOrDefault("terrainType", "");
-                    int cap = m.get("capacity") != null ? ((Number) m.get("capacity")).intValue() : 50;
-                    Location loc = new Location(lId, name, address, terrain, cap);
-                    camp.getLocations().add(loc);
-                    locationMap.put(lId, loc);
-                }
-            }
-
-            // 3. Instructors
-            @SuppressWarnings("unchecked")
-            List<Object> instList = (List<Object>) root.getOrDefault("instructors", Collections.emptyList());
-            Map<String, Instructor> instructorMap = new HashMap<>();
-            for (Object item : instList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String id = (String) m.get("id");
-                    String name = (String) m.get("name");
-                    int age = m.get("age") != null ? ((Number) m.get("age")).intValue() : 30;
-                    String contact = (String) m.getOrDefault("contactNumber", "");
-                    String spec = (String) m.getOrDefault("specialization", "General");
-                    Instructor inst = new Instructor(id, name, age, contact, spec);
-                    if (m.get("certifications") instanceof List) {
-                        @SuppressWarnings("unchecked")
-                        List<Object> certs = (List<Object>) m.get("certifications");
-                        for (Object c : certs) {
-                            if (c != null) inst.getCertifications().add(c.toString());
-                        }
-                    }
-                    camp.getInstructors().add(inst);
-                    instructorMap.put(id, inst);
-                }
-            }
-
-            // 4. Participants
-            @SuppressWarnings("unchecked")
-            List<Object> partList = (List<Object>) root.getOrDefault("participants", Collections.emptyList());
-            Map<String, Participant> participantMap = new HashMap<>();
-            for (Object item : partList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String id = (String) m.get("id");
-                    String name = (String) m.get("name");
-                    int age = m.get("age") != null ? ((Number) m.get("age")).intValue() : 18;
-                    String contact = (String) m.getOrDefault("contactNumber", "");
-                    String emergency = (String) m.getOrDefault("emergencyContact", "");
-                    String medical = (String) m.getOrDefault("medicalNotes", "None");
-                    String skill = (String) m.getOrDefault("skillLevel", "Beginner");
-                    Participant part = new Participant(id, name, age, contact, emergency, medical, skill);
-                    camp.getParticipants().add(part);
-                    participantMap.put(id, part);
-                }
-            }
-
-            // 5. Equipment
-            @SuppressWarnings("unchecked")
-            List<Object> eqList = (List<Object>) root.getOrDefault("equipment", Collections.emptyList());
-            Map<String, Equipment> equipmentMap = new HashMap<>();
-            for (Object item : eqList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String id = (String) m.get("equipmentId");
-                    String name = (String) m.get("name");
-                    String condition = (String) m.getOrDefault("condition", "Good");
-                    String type = (String) m.getOrDefault("type", "SafetyEquipment");
-                    boolean isAvail = m.get("isAvailable") != null ? (Boolean) m.get("isAvailable") : true;
-
-                    Equipment eq;
-                    if ("SafetyEquipment".equalsIgnoreCase(type)) {
-                        LocalDate lastInsp = m.get("lastInspectionDate") != null ? LocalDate.parse((String) m.get("lastInspectionDate")) : LocalDate.now();
-                        String rating = (String) m.getOrDefault("safetyRating", "A");
-                        eq = new SafetyEquipment(id, name, condition, lastInsp, rating);
-                    } else {
-                        String sportType = (String) m.getOrDefault("sportType", "General");
-                        eq = new SportsEquipment(id, name, condition, sportType);
-                    }
-                    eq.setAvailable(isAvail);
-                    camp.getEquipmentList().add(eq);
-                    equipmentMap.put(id, eq);
-                }
-            }
-
-            // 6. Activities
-            @SuppressWarnings("unchecked")
-            List<Object> actList = (List<Object>) root.getOrDefault("activities", Collections.emptyList());
-            Map<String, Activity> activityMap = new HashMap<>();
-            for (Object item : actList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String id = (String) m.get("activityId");
-                    String title = (String) m.get("title");
-                    String desc = (String) m.getOrDefault("description", "");
-                    int duration = m.get("durationMinutes") != null ? ((Number) m.get("durationMinutes")).intValue() : 60;
-                    int maxPart = m.get("maxParticipants") != null ? ((Number) m.get("maxParticipants")).intValue() : 20;
-                    String locId = (String) m.get("locationId");
-                    String instId = (String) m.get("instructorId");
-                    String type = (String) m.getOrDefault("type", "AdventureActivity");
-
-                    Location loc = locationMap.get(locId);
-                    Instructor inst = instructorMap.get(instId);
-
-                    Activity act;
-                    if ("WaterActivity".equalsIgnoreCase(type)) {
-                        boolean lifeguard = m.get("lifeguardRequired") != null ? (Boolean) m.get("lifeguardRequired") : false;
-                        String waterBody = (String) m.getOrDefault("waterBodyType", "Lake");
-                        act = new WaterActivity(id, title, desc, duration, maxPart, loc, inst, lifeguard, waterBody);
-                    } else if ("TeamBuildingActivity".equalsIgnoreCase(type)) {
-                        int teamSize = m.get("teamSize") != null ? ((Number) m.get("teamSize")).intValue() : 4;
-                        act = new TeamBuildingActivity(id, title, desc, duration, maxPart, loc, inst, teamSize);
-                    } else {
-                        String terrain = (String) m.getOrDefault("terrainType", "General");
-                        String risk = (String) m.getOrDefault("riskLevel", "Moderate");
-                        act = new AdventureActivity(id, title, desc, duration, maxPart, loc, inst, terrain, risk);
-                    }
-                    camp.getActivities().add(act);
-                    activityMap.put(id, act);
-                }
-            }
-
-            // 7. Schedules
-            @SuppressWarnings("unchecked")
-            List<Object> schList = (List<Object>) root.getOrDefault("schedules", Collections.emptyList());
-            for (Object item : schList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String entryId = (String) m.get("entryId");
-                    String actId = (String) m.get("activityId");
-                    String startStr = (String) m.get("startTime");
-                    Activity act = activityMap.get(actId);
-                    if (act != null && startStr != null) {
-                        LocalDateTime startTime = LocalDateTime.parse(startStr);
-                        act.updateSchedule(startTime);
-                        ScheduleEntry entry = new ScheduleEntry(entryId, act, startTime);
-                        camp.getSchedule().addEntry(entry);
-                    }
-                }
-            }
-
-            // 8. Registrations
-            @SuppressWarnings("unchecked")
-            List<Object> regList = (List<Object>) root.getOrDefault("registrations", Collections.emptyList());
-            for (Object item : regList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String regId = (String) m.get("registrationId");
-                    String pId = (String) m.get("participantId");
-                    String aId = (String) m.get("activityId");
-                    String regDateStr = (String) m.get("registrationDate");
-                    String status = (String) m.getOrDefault("status", "Confirmed");
-
-                    Participant part = participantMap.get(pId);
-                    Activity act = activityMap.get(aId);
-                    if (part != null && act != null) {
-                        LocalDate regDate = regDateStr != null ? LocalDate.parse(regDateStr) : LocalDate.now();
-                        Registration reg = new Registration(regId, part, act, regDate, status);
-                        camp.getRegistrations().add(reg);
-                        part.addRegistration(reg);
-                        act.addParticipant(part);
-                    }
-                }
-            }
-
-            // 9. Safety Checks
-            @SuppressWarnings("unchecked")
-            List<Object> scList = (List<Object>) root.getOrDefault("safetyChecks", Collections.emptyList());
-            for (Object item : scList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String checkId = (String) m.get("checkId");
-                    String dateStr = (String) m.get("checkDate");
-                    boolean passed = m.get("passed") != null ? (Boolean) m.get("passed") : true;
-                    String remarks = (String) m.getOrDefault("remarks", "");
-                    String eqId = (String) m.get("equipmentId");
-                    String actId = (String) m.get("activityId");
-
-                    Equipment eq = equipmentMap.get(eqId);
-                    Activity act = activityMap.get(actId);
-                    LocalDate checkDate = dateStr != null ? LocalDate.parse(dateStr) : LocalDate.now();
-                    SafetyCheck check = new SafetyCheck(checkId, passed, remarks, eq, act, checkDate);
-                    camp.getSafetyChecks().add(check);
-                }
-            }
-
-            // 10. Equipment Allocations
-            @SuppressWarnings("unchecked")
-            List<Object> allocList = (List<Object>) root.getOrDefault("equipmentAllocations", Collections.emptyList());
-            for (Object item : allocList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String allocId = (String) m.get("allocationId");
-                    String eqId = (String) m.get("equipmentId");
-                    String actId = (String) m.get("activityId");
-                    String allocDateStr = (String) m.get("allocationDate");
-                    String retDateStr = (String) m.get("returnDate");
-                    String status = (String) m.getOrDefault("status", "Allocated");
-
-                    Equipment eq = equipmentMap.get(eqId);
-                    Activity act = activityMap.get(actId);
-                    if (eq != null && act != null) {
-                        LocalDate allocDate = allocDateStr != null ? LocalDate.parse(allocDateStr) : LocalDate.now();
-                        LocalDate retDate = retDateStr != null ? LocalDate.parse(retDateStr) : null;
-                        EquipmentAllocation alloc = new EquipmentAllocation(allocId, eq, act, allocDate, retDate, status);
-                        act.addEquipmentAllocation(alloc);
-                        if ("Allocated".equalsIgnoreCase(status)) {
-                            eq.setAvailable(false);
-                        }
-                    }
-                }
-            }
-
-            // 11. Attendance Records
-            @SuppressWarnings("unchecked")
-            List<Object> attList = (List<Object>) root.getOrDefault("attendanceRecords", Collections.emptyList());
-            for (Object item : attList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String pId = (String) m.get("participantId");
-                    String aId = (String) m.get("activityId");
-                    String dateStr = (String) m.get("date");
-                    boolean isPresent = m.get("isPresent") != null ? (Boolean) m.get("isPresent") : true;
-
-                    Participant part = participantMap.get(pId);
-                    Activity act = activityMap.get(aId);
-                    if (part != null && act != null) {
-                        LocalDate date = dateStr != null ? LocalDate.parse(dateStr) : LocalDate.now();
-                        AttendanceRecord rec = new AttendanceRecord(part, act, date, isPresent);
-                        camp.getAttendance().recordAttendance(rec);
-                    }
-                }
-            }
-
-            // 12. Feedbacks
-            @SuppressWarnings("unchecked")
-            List<Object> fbList = (List<Object>) root.getOrDefault("feedbacks", Collections.emptyList());
-            for (Object item : fbList) {
-                if (item instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> m = (Map<String, Object>) item;
-                    String fbId = (String) m.get("feedbackId");
-                    String pId = (String) m.get("participantId");
-                    String aId = (String) m.get("activityId");
-                    int rating = m.get("rating") != null ? ((Number) m.get("rating")).intValue() : 5;
-                    String comments = (String) m.getOrDefault("comments", "");
-                    String subDateStr = (String) m.get("submittedDate");
-
-                    Participant part = participantMap.get(pId);
-                    Activity act = activityMap.get(aId);
-                    if (part != null && act != null) {
-                        LocalDate subDate = subDateStr != null ? LocalDate.parse(subDateStr) : LocalDate.now();
-                        Feedback fb = new Feedback(fbId, rating, comments, part, act, subDate);
-                        camp.addFeedback(fb);
-                    }
-                }
-            }
+            loadSchedules(dataDir, camp, activityById);
+            loadRegistrations(dataDir, camp, participantById, activityById);
+            loadSafetyChecks(dataDir, camp, equipmentById, activityById);
+            loadEquipmentAllocations(dataDir, camp, equipmentById, activityById);
+            loadAttendance(dataDir, camp, participantById, activityById);
+            loadFeedbacks(dataDir, camp, participantById, activityById);
 
             return camp;
+
         } catch (Exception e) {
-            System.err.println("Warning: Error loading database.json: " + e.getMessage());
+            System.err.println("Warning: Error loading CSV data: " + e.getMessage());
             Camp defaultCamp = createDefaultCamp();
-            saveCamp(defaultCamp, filePath);
+            saveCamp(defaultCamp, dataDir);
             return defaultCamp;
         }
     }
 
-    public static void saveCamp(Camp camp, String filePath) {
+    /**
+     * Saves the entire camp state to CSV files in the given directory.
+     * Each entity type gets its own file.
+     *
+     * @param camp    the Camp object to persist
+     * @param dataDir path to the data directory (e.g. "data")
+     */
+    public static void saveCamp(Camp camp, String dataDir) {
         try {
-            File file = new File(filePath);
-            if (file.getParentFile() != null) {
-                file.getParentFile().mkdirs();
-            }
+            Files.createDirectories(Paths.get(dataDir));
 
-            Map<String, Object> root = new LinkedHashMap<>();
+            saveCampMetadata(camp, dataDir);
+            saveLocations(camp, dataDir);
+            saveInstructors(camp, dataDir);
+            saveParticipants(camp, dataDir);
+            saveEquipment(camp, dataDir);
+            saveActivities(camp, dataDir);
+            saveSchedules(camp, dataDir);
+            saveRegistrations(camp, dataDir);
+            saveSafetyChecks(camp, dataDir);
+            saveEquipmentAllocations(camp, dataDir);
+            saveAttendance(camp, dataDir);
+            saveFeedbacks(camp, dataDir);
 
-            // 1. Camp
-            Map<String, Object> campMap = new LinkedHashMap<>();
-            campMap.put("campId", camp.getCampId());
-            campMap.put("campName", camp.getCampName());
-            campMap.put("startDate", camp.getStartDate().toString());
-            campMap.put("endDate", camp.getEndDate().toString());
-            campMap.put("capacity", camp.getCapacity());
-            campMap.put("status", camp.getStatus());
-            root.put("camp", campMap);
-
-            // 2. Locations
-            List<Map<String, Object>> locationsList = new ArrayList<>();
-            for (Location loc : camp.getLocations().getAll()) {
-                Map<String, Object> lm = new LinkedHashMap<>();
-                lm.put("locationId", loc.getLocationId());
-                lm.put("name", loc.getName());
-                lm.put("address", loc.getAddress());
-                lm.put("terrainType", loc.getTerrainType());
-                lm.put("capacity", loc.getCapacity());
-                locationsList.add(lm);
-            }
-            root.put("locations", locationsList);
-
-            // 3. Instructors
-            List<Map<String, Object>> instructorsList = new ArrayList<>();
-            for (Instructor inst : camp.getInstructors().getAll()) {
-                Map<String, Object> im = new LinkedHashMap<>();
-                im.put("id", inst.getId());
-                im.put("name", inst.getName());
-                im.put("age", inst.getAge());
-                im.put("contactNumber", inst.getContactNumber());
-                im.put("specialization", inst.getSpecialization());
-                im.put("certifications", inst.getCertifications());
-                instructorsList.add(im);
-            }
-            root.put("instructors", instructorsList);
-
-            // 4. Participants
-            List<Map<String, Object>> participantsList = new ArrayList<>();
-            for (Participant p : camp.getParticipants().getAll()) {
-                Map<String, Object> pm = new LinkedHashMap<>();
-                pm.put("id", p.getId());
-                pm.put("name", p.getName());
-                pm.put("age", p.getAge());
-                pm.put("contactNumber", p.getContactNumber());
-                pm.put("emergencyContact", p.getEmergencyContact());
-                pm.put("medicalNotes", p.getMedicalNotes());
-                pm.put("skillLevel", p.getSkillLevel());
-                participantsList.add(pm);
-            }
-            root.put("participants", participantsList);
-
-            // 5. Equipment
-            List<Map<String, Object>> eqList = new ArrayList<>();
-            for (Equipment eq : camp.getEquipmentList().getAll()) {
-                Map<String, Object> em = new LinkedHashMap<>();
-                em.put("equipmentId", eq.getEquipmentId());
-                em.put("name", eq.getName());
-                em.put("condition", eq.getCondition());
-                em.put("isAvailable", eq.isAvailable());
-                if (eq instanceof SafetyEquipment) {
-                    SafetyEquipment seq = (SafetyEquipment) eq;
-                    em.put("type", "SafetyEquipment");
-                    em.put("lastInspectionDate", seq.getLastInspectionDate() != null ? seq.getLastInspectionDate().toString() : LocalDate.now().toString());
-                    em.put("safetyRating", seq.getSafetyRating());
-                } else if (eq instanceof SportsEquipment) {
-                    SportsEquipment seq = (SportsEquipment) eq;
-                    em.put("type", "SportsEquipment");
-                    em.put("sportType", seq.getSportType());
-                }
-                eqList.add(em);
-            }
-            root.put("equipment", eqList);
-
-            // 6. Activities
-            List<Map<String, Object>> actList = new ArrayList<>();
-            for (Activity act : camp.getActivities().getAll()) {
-                Map<String, Object> am = new LinkedHashMap<>();
-                am.put("activityId", act.getActivityId());
-                am.put("title", act.getTitle());
-                am.put("description", act.getDescription());
-                am.put("durationMinutes", act.getDurationMinutes());
-                am.put("maxParticipants", act.getMaxParticipants());
-                am.put("locationId", act.getLocation() != null ? act.getLocation().getLocationId() : null);
-                am.put("instructorId", act.getInstructor() != null ? act.getInstructor().getId() : null);
-
-                if (act instanceof WaterActivity) {
-                    WaterActivity wact = (WaterActivity) act;
-                    am.put("type", "WaterActivity");
-                    am.put("lifeguardRequired", wact.isLifeguardRequired());
-                    am.put("waterBodyType", wact.getWaterBodyType());
-                } else if (act instanceof TeamBuildingActivity) {
-                    TeamBuildingActivity tact = (TeamBuildingActivity) act;
-                    am.put("type", "TeamBuildingActivity");
-                    am.put("teamSize", tact.getTeamSize());
-                } else if (act instanceof AdventureActivity) {
-                    AdventureActivity aact = (AdventureActivity) act;
-                    am.put("type", "AdventureActivity");
-                    am.put("terrainType", aact.getTerrainType());
-                    am.put("riskLevel", aact.getRiskLevel());
-                }
-                actList.add(am);
-            }
-            root.put("activities", actList);
-
-            // 7. Schedules
-            List<Map<String, Object>> schList = new ArrayList<>();
-            for (ScheduleEntry se : camp.getSchedule().getEntries().getAll()) {
-                Map<String, Object> sm = new LinkedHashMap<>();
-                sm.put("entryId", se.getEntryId());
-                sm.put("activityId", se.getActivity() != null ? se.getActivity().getActivityId() : null);
-                sm.put("startTime", se.getStartTime() != null ? se.getStartTime().toString() : null);
-                schList.add(sm);
-            }
-            root.put("schedules", schList);
-
-            // 8. Registrations
-            List<Map<String, Object>> regList = new ArrayList<>();
-            for (Registration reg : camp.getRegistrations().getAll()) {
-                Map<String, Object> rm = new LinkedHashMap<>();
-                rm.put("registrationId", reg.getRegistrationId());
-                rm.put("participantId", reg.getParticipant() != null ? reg.getParticipant().getId() : null);
-                rm.put("activityId", reg.getActivity() != null ? reg.getActivity().getActivityId() : null);
-                rm.put("registrationDate", reg.getRegistrationDate() != null ? reg.getRegistrationDate().toString() : null);
-                rm.put("status", reg.getStatus());
-                regList.add(rm);
-            }
-            root.put("registrations", regList);
-
-            // 9. Safety Checks
-            List<Map<String, Object>> scList = new ArrayList<>();
-            for (SafetyCheck sc : camp.getSafetyChecks().getAll()) {
-                Map<String, Object> scm = new LinkedHashMap<>();
-                scm.put("checkId", sc.getCheckId());
-                scm.put("checkDate", sc.getCheckDate() != null ? sc.getCheckDate().toString() : null);
-                scm.put("passed", sc.isPassed());
-                scm.put("remarks", sc.getRemarks());
-                scm.put("equipmentId", sc.getEquipment() != null ? sc.getEquipment().getEquipmentId() : null);
-                scm.put("activityId", sc.getActivity() != null ? sc.getActivity().getActivityId() : null);
-                scList.add(scm);
-            }
-            root.put("safetyChecks", scList);
-
-            // 10. Equipment Allocations
-            List<Map<String, Object>> allocList = new ArrayList<>();
-            for (Activity act : camp.getActivities().getAll()) {
-                for (EquipmentAllocation ea : act.getEquipmentAllocations()) {
-                    Map<String, Object> eam = new LinkedHashMap<>();
-                    eam.put("allocationId", ea.getAllocationId());
-                    eam.put("equipmentId", ea.getEquipment() != null ? ea.getEquipment().getEquipmentId() : null);
-                    eam.put("activityId", ea.getActivity() != null ? ea.getActivity().getActivityId() : null);
-                    eam.put("allocationDate", ea.getAllocationDate() != null ? ea.getAllocationDate().toString() : null);
-                    eam.put("returnDate", ea.getReturnDate() != null ? ea.getReturnDate().toString() : null);
-                    eam.put("status", ea.getStatus());
-                    allocList.add(eam);
-                }
-            }
-            root.put("equipmentAllocations", allocList);
-
-            // 11. Attendance Records
-            List<Map<String, Object>> attList = new ArrayList<>();
-            for (AttendanceRecord ar : camp.getAttendance().getRecords().getAll()) {
-                Map<String, Object> arm = new LinkedHashMap<>();
-                arm.put("participantId", ar.getParticipant() != null ? ar.getParticipant().getId() : null);
-                arm.put("activityId", ar.getActivity() != null ? ar.getActivity().getActivityId() : null);
-                arm.put("date", ar.isPresent() ? LocalDate.now().toString() : null);
-                arm.put("isPresent", ar.isPresent());
-                attList.add(arm);
-            }
-            root.put("attendanceRecords", attList);
-
-            // 12. Feedbacks
-            List<Map<String, Object>> fbList = new ArrayList<>();
-            for (Feedback fb : camp.getFeedbacks().getAll()) {
-                Map<String, Object> fbm = new LinkedHashMap<>();
-                fbm.put("feedbackId", fb.getFeedbackId());
-                fbm.put("participantId", fb.getParticipant() != null ? fb.getParticipant().getId() : null);
-                fbm.put("activityId", fb.getActivity() != null ? fb.getActivity().getActivityId() : null);
-                fbm.put("rating", fb.getRating());
-                fbm.put("comments", fb.getComments());
-                fbm.put("submittedDate", fb.getSubmittedDate() != null ? fb.getSubmittedDate().toString() : null);
-                fbList.add(fbm);
-            }
-            root.put("feedbacks", fbList);
-
-            String formattedJson = SimpleJsonSerializer.serialize(root);
-            try (FileWriter writer = new FileWriter(file)) {
-                writer.write(formattedJson);
-            }
         } catch (IOException e) {
-            System.err.println("Error saving database.json: " + e.getMessage());
+            System.err.println("Error saving CSV data: " + e.getMessage());
         }
     }
 
+    // =========================================================================
+    // LOAD METHODS (one per entity type)
+    // =========================================================================
+
+    /** Reads camp.csv: campId, campName, startDate, endDate, capacity, status */
+    private static Camp loadCampMetadata(String dataDir) throws IOException {
+        List<String[]> rows = readCsv(dataDir + "/camp.csv");
+        if (rows.size() < 2) {
+            return new Camp("C1", "Summer Adventure Camp",
+                    LocalDate.now(), LocalDate.now().plusDays(7), 100);
+        }
+        String[] r = rows.get(1);
+        return new Camp(r[0], r[1], LocalDate.parse(r[2]), LocalDate.parse(r[3]), Integer.parseInt(r[4]));
+    }
+
+    /**
+     * Reads locations.csv: locationId, name, address, terrainType, capacity
+     * Returns a locationId -> Location map for use when loading activities.
+     */
+    private static Map<String, Location> loadLocations(String dataDir, Camp camp) throws IOException {
+        Map<String, Location> map = new LinkedHashMap<>();
+        for (String[] r : dataRows(readCsv(dataDir + "/locations.csv"))) {
+            Location loc = new Location(r[0], r[1], r[2], r[3], Integer.parseInt(r[4]));
+            camp.getLocations().add(loc);
+            map.put(r[0], loc);
+        }
+        return map;
+    }
+
+    /**
+     * Reads instructors.csv: id, name, age, contactNumber, specialization, certifications
+     * Certifications are stored as one semicolon-separated value in column 6.
+     * Returns an instructorId -> Instructor map for use when loading activities.
+     */
+    private static Map<String, Instructor> loadInstructors(String dataDir, Camp camp) throws IOException {
+        Map<String, Instructor> map = new LinkedHashMap<>();
+        for (String[] r : dataRows(readCsv(dataDir + "/instructors.csv"))) {
+            Instructor inst = new Instructor(r[0], r[1], Integer.parseInt(r[2]), r[3], r[4]);
+            if (r.length > 5 && !r[5].isEmpty()) {
+                for (String cert : r[5].split(";")) {
+                    inst.getCertifications().add(cert.trim());
+                }
+            }
+            camp.getInstructors().add(inst);
+            map.put(r[0], inst);
+        }
+        return map;
+    }
+
+    /**
+     * Reads participants.csv: id, name, age, contactNumber, emergencyContact, medicalNotes, skillLevel
+     * Returns a participantId -> Participant map for use when loading registrations.
+     */
+    private static Map<String, Participant> loadParticipants(String dataDir, Camp camp) throws IOException {
+        Map<String, Participant> map = new LinkedHashMap<>();
+        for (String[] r : dataRows(readCsv(dataDir + "/participants.csv"))) {
+            Participant p = new Participant(r[0], r[1], Integer.parseInt(r[2]), r[3], r[4], r[5], r[6]);
+            camp.getParticipants().add(p);
+            map.put(r[0], p);
+        }
+        return map;
+    }
+
+    /**
+     * Reads equipment.csv.
+     * Columns: equipmentId, name, condition, isAvailable, type,
+     *          lastInspectionDate (col 5), safetyRating (col 6),  -- SafetyEquipment
+     *          sportType (col 7)                                   -- SportsEquipment
+     * The 'type' column drives which subclass to instantiate.
+     * Returns an equipmentId -> Equipment map.
+     */
+    private static Map<String, Equipment> loadEquipment(String dataDir, Camp camp) throws IOException {
+        Map<String, Equipment> map = new LinkedHashMap<>();
+        for (String[] r : dataRows(readCsv(dataDir + "/equipment.csv"))) {
+            String id = r[0], name = r[1], condition = r[2];
+            boolean available = Boolean.parseBoolean(r[3]);
+            String type = r[4];
+
+            Equipment eq;
+            if ("SafetyEquipment".equalsIgnoreCase(type)) {
+                LocalDate lastInsp = (r.length > 5 && !r[5].isEmpty()) ? LocalDate.parse(r[5]) : LocalDate.now();
+                String rating = r.length > 6 ? r[6] : "A";
+                eq = new SafetyEquipment(id, name, condition, lastInsp, rating);
+            } else {
+                eq = new SportsEquipment(id, name, condition, r.length > 7 ? r[7] : "General");
+            }
+            eq.setAvailable(available);
+            camp.getEquipmentList().add(eq);
+            map.put(id, eq);
+        }
+        return map;
+    }
+
+    /**
+     * Reads activities.csv.
+     * Common columns: activityId, title, description, durationMinutes, maxParticipants,
+     *                 locationId, instructorId, type
+     * Type-specific columns (leave empty if unused):
+     *   col 8:  lifeguardRequired  (WaterActivity)
+     *   col 9:  waterBodyType      (WaterActivity)
+     *   col 10: teamSize           (TeamBuildingActivity)
+     *   col 11: terrainType        (AdventureActivity)
+     *   col 12: riskLevel          (AdventureActivity)
+     * Returns an activityId -> Activity map.
+     */
+    private static Map<String, Activity> loadActivities(String dataDir, Camp camp,
+            Map<String, Location> locationById, Map<String, Instructor> instructorById) throws IOException {
+        Map<String, Activity> map = new LinkedHashMap<>();
+        for (String[] r : dataRows(readCsv(dataDir + "/activities.csv"))) {
+            String id = r[0], title = r[1], desc = r[2];
+            int duration = Integer.parseInt(r[3]);
+            int maxPart  = Integer.parseInt(r[4]);
+            Location   loc  = locationById.get(r[5]);
+            Instructor inst = instructorById.get(r[6]);
+            String type = r[7];
+
+            Activity act;
+            if ("WaterActivity".equalsIgnoreCase(type)) {
+                boolean lifeguard = r.length > 8 && Boolean.parseBoolean(r[8]);
+                String waterBody  = r.length > 9 ? r[9] : "Lake";
+                act = new WaterActivity(id, title, desc, duration, maxPart, loc, inst, lifeguard, waterBody);
+            } else if ("TeamBuildingActivity".equalsIgnoreCase(type)) {
+                int teamSize = r.length > 10 ? Integer.parseInt(r[10]) : 4;
+                act = new TeamBuildingActivity(id, title, desc, duration, maxPart, loc, inst, teamSize);
+            } else {
+                String terrain = r.length > 11 ? r[11] : "General";
+                String risk    = r.length > 12 ? r[12] : "Moderate";
+                act = new AdventureActivity(id, title, desc, duration, maxPart, loc, inst, terrain, risk);
+            }
+            camp.getActivities().add(act);
+            map.put(id, act);
+        }
+        return map;
+    }
+
+    /** Reads schedules.csv: entryId, activityId, startTime */
+    private static void loadSchedules(String dataDir, Camp camp,
+            Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/schedules.csv"))) {
+            Activity act = activityById.get(r[1]);
+            if (act != null && !r[2].isEmpty()) {
+                LocalDateTime startTime = LocalDateTime.parse(r[2]);
+                act.updateSchedule(startTime);
+                camp.getSchedule().addEntry(new ScheduleEntry(r[0], act, startTime));
+            }
+        }
+    }
+
+    /** Reads registrations.csv: registrationId, participantId, activityId, registrationDate, status */
+    private static void loadRegistrations(String dataDir, Camp camp,
+            Map<String, Participant> participantById, Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/registrations.csv"))) {
+            Participant part = participantById.get(r[1]);
+            Activity act     = activityById.get(r[2]);
+            if (part != null && act != null) {
+                Registration reg = new Registration(r[0], part, act, LocalDate.parse(r[3]), r[4]);
+                camp.getRegistrations().add(reg);
+                part.addRegistration(reg);
+                act.addParticipant(part);
+            }
+        }
+    }
+
+    /** Reads safety_checks.csv: checkId, passed, remarks, equipmentId, activityId, checkDate */
+    private static void loadSafetyChecks(String dataDir, Camp camp,
+            Map<String, Equipment> equipmentById, Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/safety_checks.csv"))) {
+            Equipment eq = equipmentById.get(r[3]);
+            Activity act = activityById.get(r[4].isEmpty() ? null : r[4]);
+            camp.getSafetyChecks().add(
+                    new SafetyCheck(r[0], Boolean.parseBoolean(r[1]), r[2], eq, act, LocalDate.parse(r[5])));
+        }
+    }
+
+    /**
+     * Reads equipment_allocations.csv:
+     * allocationId, equipmentId, activityId, allocationDate, returnDate, status
+     */
+    private static void loadEquipmentAllocations(String dataDir, Camp camp,
+            Map<String, Equipment> equipmentById, Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/equipment_allocations.csv"))) {
+            Equipment eq = equipmentById.get(r[1]);
+            Activity act = activityById.get(r[2]);
+            if (eq != null && act != null) {
+                LocalDate retDate = r[4].isEmpty() ? null : LocalDate.parse(r[4]);
+                EquipmentAllocation alloc = new EquipmentAllocation(
+                        r[0], eq, act, LocalDate.parse(r[3]), retDate, r[5]);
+                act.addEquipmentAllocation(alloc);
+                if ("Allocated".equalsIgnoreCase(r[5])) eq.setAvailable(false);
+            }
+        }
+    }
+
+    /** Reads attendance.csv: participantId, activityId, date, isPresent */
+    private static void loadAttendance(String dataDir, Camp camp,
+            Map<String, Participant> participantById, Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/attendance.csv"))) {
+            Participant part = participantById.get(r[0]);
+            Activity act     = activityById.get(r[1]);
+            if (part != null && act != null) {
+                camp.getAttendance().recordAttendance(
+                        new AttendanceRecord(part, act, LocalDate.parse(r[2]), Boolean.parseBoolean(r[3])));
+            }
+        }
+    }
+
+    /** Reads feedbacks.csv: feedbackId, rating, comments, participantId, activityId, submittedDate */
+    private static void loadFeedbacks(String dataDir, Camp camp,
+            Map<String, Participant> participantById, Map<String, Activity> activityById) throws IOException {
+        for (String[] r : dataRows(readCsv(dataDir + "/feedbacks.csv"))) {
+            Participant part = participantById.get(r[3]);
+            Activity act     = activityById.get(r[4]);
+            if (part != null && act != null) {
+                camp.addFeedback(
+                        new Feedback(r[0], Integer.parseInt(r[1]), r[2], part, act, LocalDate.parse(r[5])));
+            }
+        }
+    }
+
+    // =========================================================================
+    // SAVE METHODS (one per entity type)
+    // =========================================================================
+
+    /** Writes camp.csv: campId, campName, startDate, endDate, capacity, status */
+    private static void saveCampMetadata(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/camp.csv")) {
+            w.println("campId,campName,startDate,endDate,capacity,status");
+            w.println(String.join(",",
+                    camp.getCampId(), escapeCsv(camp.getCampName()),
+                    camp.getStartDate().toString(), camp.getEndDate().toString(),
+                    String.valueOf(camp.getCapacity()), camp.getStatus()));
+        }
+    }
+
+    /** Writes locations.csv: locationId, name, address, terrainType, capacity */
+    private static void saveLocations(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/locations.csv")) {
+            w.println("locationId,name,address,terrainType,capacity");
+            for (Location loc : camp.getLocations().getAll()) {
+                w.println(String.join(",",
+                        loc.getLocationId(), escapeCsv(loc.getName()),
+                        escapeCsv(loc.getAddress()), escapeCsv(loc.getTerrainType()),
+                        String.valueOf(loc.getCapacity())));
+            }
+        }
+    }
+
+    /** Writes instructors.csv: id, name, age, contactNumber, specialization, certifications */
+    private static void saveInstructors(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/instructors.csv")) {
+            w.println("id,name,age,contactNumber,specialization,certifications");
+            for (Instructor inst : camp.getInstructors().getAll()) {
+                w.println(String.join(",",
+                        inst.getId(), escapeCsv(inst.getName()), String.valueOf(inst.getAge()),
+                        escapeCsv(inst.getContactNumber()), escapeCsv(inst.getSpecialization()),
+                        escapeCsv(String.join(";", inst.getCertifications()))));
+            }
+        }
+    }
+
+    /** Writes participants.csv: id, name, age, contactNumber, emergencyContact, medicalNotes, skillLevel */
+    private static void saveParticipants(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/participants.csv")) {
+            w.println("id,name,age,contactNumber,emergencyContact,medicalNotes,skillLevel");
+            for (Participant p : camp.getParticipants().getAll()) {
+                w.println(String.join(",",
+                        p.getId(), escapeCsv(p.getName()), String.valueOf(p.getAge()),
+                        escapeCsv(p.getContactNumber()), escapeCsv(p.getEmergencyContact()),
+                        escapeCsv(p.getMedicalNotes()), escapeCsv(p.getSkillLevel())));
+            }
+        }
+    }
+
+    /**
+     * Writes equipment.csv.
+     * Columns: equipmentId, name, condition, isAvailable, type,
+     *          lastInspectionDate, safetyRating, sportType
+     * Columns not applicable to a subtype are written as empty strings.
+     */
+    private static void saveEquipment(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/equipment.csv")) {
+            w.println("equipmentId,name,condition,isAvailable,type,lastInspectionDate,safetyRating,sportType");
+            for (Equipment eq : camp.getEquipmentList().getAll()) {
+                String type, lastInsp = "", rating = "", sport = "";
+                if (eq instanceof SafetyEquipment) {
+                    SafetyEquipment seq = (SafetyEquipment) eq;
+                    type    = "SafetyEquipment";
+                    lastInsp = seq.getLastInspectionDate() != null
+                            ? seq.getLastInspectionDate().toString() : LocalDate.now().toString();
+                    rating  = seq.getSafetyRating();
+                } else {
+                    type  = "SportsEquipment";
+                    sport = ((SportsEquipment) eq).getSportType();
+                }
+                w.println(String.join(",",
+                        eq.getEquipmentId(), escapeCsv(eq.getName()), escapeCsv(eq.getCondition()),
+                        String.valueOf(eq.isAvailable()), type, lastInsp, rating, escapeCsv(sport)));
+            }
+        }
+    }
+
+    /**
+     * Writes activities.csv.
+     * Common columns: activityId, title, description, durationMinutes, maxParticipants,
+     *                 locationId, instructorId, type
+     * Type-specific columns are left empty when not applicable:
+     *   lifeguardRequired, waterBodyType (WaterActivity)
+     *   teamSize                         (TeamBuildingActivity)
+     *   terrainType, riskLevel           (AdventureActivity)
+     */
+    private static void saveActivities(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/activities.csv")) {
+            w.println("activityId,title,description,durationMinutes,maxParticipants,"
+                    + "locationId,instructorId,type,"
+                    + "lifeguardRequired,waterBodyType,teamSize,terrainType,riskLevel");
+            for (Activity act : camp.getActivities().getAll()) {
+                String locId  = act.getLocation()   != null ? act.getLocation().getLocationId() : "";
+                String instId = act.getInstructor() != null ? act.getInstructor().getId()       : "";
+                String type, lifeguard = "", waterBody = "", teamSize = "", terrain = "", risk = "";
+                if (act instanceof WaterActivity) {
+                    WaterActivity wa = (WaterActivity) act;
+                    type      = "WaterActivity";
+                    lifeguard = String.valueOf(wa.isLifeguardRequired());
+                    waterBody = wa.getWaterBodyType();
+                } else if (act instanceof TeamBuildingActivity) {
+                    type     = "TeamBuildingActivity";
+                    teamSize = String.valueOf(((TeamBuildingActivity) act).getTeamSize());
+                } else {
+                    AdventureActivity aa = (AdventureActivity) act;
+                    type    = "AdventureActivity";
+                    terrain = aa.getTerrainType();
+                    risk    = aa.getRiskLevel();
+                }
+                w.println(String.join(",",
+                        act.getActivityId(), escapeCsv(act.getTitle()), escapeCsv(act.getDescription()),
+                        String.valueOf(act.getDurationMinutes()), String.valueOf(act.getMaxParticipants()),
+                        locId, instId, type,
+                        lifeguard, escapeCsv(waterBody), teamSize, escapeCsv(terrain), escapeCsv(risk)));
+            }
+        }
+    }
+
+    /** Writes schedules.csv: entryId, activityId, startTime */
+    private static void saveSchedules(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/schedules.csv")) {
+            w.println("entryId,activityId,startTime");
+            for (ScheduleEntry entry : camp.getSchedule().getEntries().getAll()) {
+                String actId = entry.getActivity()  != null ? entry.getActivity().getActivityId() : "";
+                String time  = entry.getStartTime() != null ? entry.getStartTime().toString()     : "";
+                w.println(String.join(",", entry.getEntryId(), actId, time));
+            }
+        }
+    }
+
+    /** Writes registrations.csv: registrationId, participantId, activityId, registrationDate, status */
+    private static void saveRegistrations(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/registrations.csv")) {
+            w.println("registrationId,participantId,activityId,registrationDate,status");
+            for (Registration reg : camp.getRegistrations().getAll()) {
+                String partId  = reg.getParticipant()      != null ? reg.getParticipant().getId()          : "";
+                String actId   = reg.getActivity()         != null ? reg.getActivity().getActivityId()     : "";
+                String regDate = reg.getRegistrationDate() != null ? reg.getRegistrationDate().toString()  : "";
+                w.println(String.join(",", reg.getRegistrationId(), partId, actId, regDate, reg.getStatus()));
+            }
+        }
+    }
+
+    /** Writes safety_checks.csv: checkId, passed, remarks, equipmentId, activityId, checkDate */
+    private static void saveSafetyChecks(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/safety_checks.csv")) {
+            w.println("checkId,passed,remarks,equipmentId,activityId,checkDate");
+            for (SafetyCheck sc : camp.getSafetyChecks().getAll()) {
+                String eqId  = sc.getEquipment() != null ? sc.getEquipment().getEquipmentId() : "";
+                String actId = sc.getActivity()  != null ? sc.getActivity().getActivityId()   : "";
+                String date  = sc.getCheckDate() != null ? sc.getCheckDate().toString()       : "";
+                w.println(String.join(",",
+                        sc.getCheckId(), String.valueOf(sc.isPassed()),
+                        escapeCsv(sc.getRemarks()), eqId, actId, date));
+            }
+        }
+    }
+
+    /**
+     * Writes equipment_allocations.csv:
+     * allocationId, equipmentId, activityId, allocationDate, returnDate, status
+     */
+    private static void saveEquipmentAllocations(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/equipment_allocations.csv")) {
+            w.println("allocationId,equipmentId,activityId,allocationDate,returnDate,status");
+            for (Activity act : camp.getActivities().getAll()) {
+                for (EquipmentAllocation ea : act.getEquipmentAllocations()) {
+                    String eqId    = ea.getEquipment()    != null ? ea.getEquipment().getEquipmentId() : "";
+                    String actId   = ea.getActivity()     != null ? ea.getActivity().getActivityId()   : "";
+                    String alloc   = ea.getAllocationDate()!= null ? ea.getAllocationDate().toString()  : "";
+                    String ret     = ea.getReturnDate()   != null ? ea.getReturnDate().toString()      : "";
+                    w.println(String.join(",", ea.getAllocationId(), eqId, actId, alloc, ret, ea.getStatus()));
+                }
+            }
+        }
+    }
+
+    /** Writes attendance.csv: participantId, activityId, date, isPresent */
+    private static void saveAttendance(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/attendance.csv")) {
+            w.println("participantId,activityId,date,isPresent");
+            for (AttendanceRecord ar : camp.getAttendance().getRecords().getAll()) {
+                String partId = ar.getParticipant() != null ? ar.getParticipant().getId()      : "";
+                String actId  = ar.getActivity()    != null ? ar.getActivity().getActivityId() : "";
+                String date   = ar.getDate()        != null ? ar.getDate().toString()          : "";
+                w.println(String.join(",", partId, actId, date, String.valueOf(ar.isPresent())));
+            }
+        }
+    }
+
+    /** Writes feedbacks.csv: feedbackId, rating, comments, participantId, activityId, submittedDate */
+    private static void saveFeedbacks(Camp camp, String dataDir) throws IOException {
+        try (PrintWriter w = openCsvWriter(dataDir + "/feedbacks.csv")) {
+            w.println("feedbackId,rating,comments,participantId,activityId,submittedDate");
+            for (Feedback fb : camp.getFeedbacks().getAll()) {
+                String partId  = fb.getParticipant()  != null ? fb.getParticipant().getId()        : "";
+                String actId   = fb.getActivity()     != null ? fb.getActivity().getActivityId()   : "";
+                String subDate = fb.getSubmittedDate()!= null ? fb.getSubmittedDate().toString()   : "";
+                w.println(String.join(",",
+                        fb.getFeedbackId(), String.valueOf(fb.getRating()),
+                        escapeCsv(fb.getComments()), partId, actId, subDate));
+            }
+        }
+    }
+
+    // =========================================================================
+    // DEFAULT SEED DATA
+    // =========================================================================
+
+    /**
+     * Creates a default Camp with sample locations, instructors, participants,
+     * activities, and equipment. Used when the data directory does not yet exist.
+     */
     private static Camp createDefaultCamp() {
-        Camp camp = new Camp("C1", "Summer Adventure Camp", LocalDate.now(), LocalDate.now().plusDays(7), 100);
-        Location loc1 = new Location("L1", "River Zone", "North Woods", "Water", 20);
-        Location loc2 = new Location("L2", "Climbing Wall", "Base Camp", "Mountain", 10);
-        Location loc3 = new Location("L3", "Camp Ground", "Central Field", "Grassland", 50);
+        Camp camp = new Camp("C1", "Summer Adventure Camp",
+                LocalDate.now(), LocalDate.now().plusDays(7), 100);
+
+        Location loc1 = new Location("L1", "River Zone",    "North Woods",   "Water",     20);
+        Location loc2 = new Location("L2", "Climbing Wall", "Base Camp",     "Mountain",  10);
+        Location loc3 = new Location("L3", "Camp Ground",   "Central Field", "Grassland", 50);
         camp.getLocations().add(loc1);
         camp.getLocations().add(loc2);
         camp.getLocations().add(loc3);
@@ -551,236 +568,103 @@ public class DataManager {
         camp.getInstructors().add(i1);
         camp.getInstructors().add(i2);
 
-        Participant p1 = new Participant("P1", "Bob", 20, "555-0201", "Mom: 555-0000", "None", "Beginner");
-        Participant p2 = new Participant("P2", "Charlie", 22, "555-0202", "Dad: 555-0001", "None", "Intermediate");
-        Participant p3 = new Participant("P3", "Diana", 19, "555-0203", "Sister: 555-0002", "Asthma", "Advanced");
-        camp.getParticipants().add(p1);
-        camp.getParticipants().add(p2);
-        camp.getParticipants().add(p3);
+        camp.getParticipants().add(new Participant("P1", "Bob",     20, "555-0201", "Mom: 555-0000",    "None",   "Beginner"));
+        camp.getParticipants().add(new Participant("P2", "Charlie", 22, "555-0202", "Dad: 555-0001",    "None",   "Intermediate"));
+        camp.getParticipants().add(new Participant("P3", "Diana",   19, "555-0203", "Sister: 555-0002", "Asthma", "Advanced"));
 
-        Activity a1 = new WaterActivity("A1", "Kayaking Basics", "Learn fundamentals of kayaking", 120, 10, loc1, i1, true, "River");
-        Activity a2 = new AdventureActivity("A2", "Rock Climbing", "Introductory rock climbing wall", 90, 8, loc2, i2, "Rock Face", "Moderate");
-        Activity a3 = new TeamBuildingActivity("A3", "Rope Course Challenge", "Obstacle course navigation", 60, 15, loc3, i1, 5);
-        camp.getActivities().add(a1);
-        camp.getActivities().add(a2);
-        camp.getActivities().add(a3);
+        camp.getActivities().add(new WaterActivity("A1", "Kayaking Basics", "Learn fundamentals of kayaking", 120, 10, loc1, i1, true, "River"));
+        camp.getActivities().add(new AdventureActivity("A2", "Rock Climbing", "Introductory rock climbing wall", 90, 8, loc2, i2, "Rock Face", "Moderate"));
+        camp.getActivities().add(new TeamBuildingActivity("A3", "Rope Course Challenge", "Obstacle course navigation", 60, 15, loc3, i1, 5));
 
-        Equipment eq1 = new SafetyEquipment("E1", "Life Jacket", "Good", LocalDate.now(), "A");
-        Equipment eq2 = new SafetyEquipment("E2", "Climbing Helmet", "Good", LocalDate.now(), "A");
-        Equipment eq3 = new SportsEquipment("E3", "Kayak Paddle", "Good", "Kayaking");
-        Equipment eq4 = new SportsEquipment("E4", "Climbing Harness", "Good", "Climbing");
-        camp.getEquipmentList().add(eq1);
-        camp.getEquipmentList().add(eq2);
-        camp.getEquipmentList().add(eq3);
-        camp.getEquipmentList().add(eq4);
+        camp.getEquipmentList().add(new SafetyEquipment("E1", "Life Jacket",      "Good", LocalDate.now(), "A"));
+        camp.getEquipmentList().add(new SafetyEquipment("E2", "Climbing Helmet",  "Good", LocalDate.now(), "A"));
+        camp.getEquipmentList().add(new SportsEquipment("E3", "Kayak Paddle",     "Good", "Kayaking"));
+        camp.getEquipmentList().add(new SportsEquipment("E4", "Climbing Harness", "Good", "Climbing"));
 
         return camp;
     }
 
-    // --- Lightweight Recursive Descent JSON Parser & Formatted Serializer ---
-    public static class SimpleJsonParser {
-        private final String src;
-        private int pos = 0;
+    // =========================================================================
+    // CSV UTILITY HELPERS
+    // =========================================================================
 
-        public SimpleJsonParser(String src) {
-            this.src = src != null ? src : "";
-        }
+    /**
+     * Reads all rows from a CSV file as a List of String arrays.
+     * Index 0 is the header row; data rows start at index 1.
+     * Returns an empty list if the file does not exist.
+     */
+    private static List<String[]> readCsv(String filePath) throws IOException {
+        List<String[]> rows = new ArrayList<>();
+        File file = new File(filePath);
+        if (!file.exists()) return rows;
 
-        public static Object parse(String json) {
-            return new SimpleJsonParser(json).parseValue();
-        }
-
-        private Object parseValue() {
-            skipWhitespace();
-            if (pos >= src.length()) return null;
-            char c = src.charAt(pos);
-            if (c == '{') return parseObject();
-            if (c == '[') return parseArray();
-            if (c == '"') return parseString();
-            if (c == 't' || c == 'f') return parseBoolean();
-            if (c == 'n') return parseNull();
-            if (c == '-' || Character.isDigit(c)) return parseNumber();
-            throw new RuntimeException("Unexpected character at " + pos + ": " + c);
-        }
-
-        private void skipWhitespace() {
-            while (pos < src.length() && Character.isWhitespace(src.charAt(pos))) pos++;
-        }
-
-        private Map<String, Object> parseObject() {
-            Map<String, Object> map = new LinkedHashMap<>();
-            pos++; // skip '{'
-            skipWhitespace();
-            if (pos < src.length() && src.charAt(pos) == '}') {
-                pos++;
-                return map;
-            }
-            while (pos < src.length()) {
-                skipWhitespace();
-                String key = parseString();
-                skipWhitespace();
-                if (pos < src.length() && src.charAt(pos) == ':') pos++;
-                skipWhitespace();
-                Object val = parseValue();
-                map.put(key, val);
-                skipWhitespace();
-                if (pos < src.length() && src.charAt(pos) == ',') {
-                    pos++;
-                } else if (pos < src.length() && src.charAt(pos) == '}') {
-                    pos++;
-                    break;
-                }
-            }
-            return map;
-        }
-
-        private List<Object> parseArray() {
-            List<Object> list = new ArrayList<>();
-            pos++; // skip '['
-            skipWhitespace();
-            if (pos < src.length() && src.charAt(pos) == ']') {
-                pos++;
-                return list;
-            }
-            while (pos < src.length()) {
-                skipWhitespace();
-                Object val = parseValue();
-                list.add(val);
-                skipWhitespace();
-                if (pos < src.length() && src.charAt(pos) == ',') {
-                    pos++;
-                } else if (pos < src.length() && src.charAt(pos) == ']') {
-                    pos++;
-                    break;
-                }
-            }
-            return list;
-        }
-
-        private String parseString() {
-            pos++; // skip '"'
-            StringBuilder sb = new StringBuilder();
-            while (pos < src.length()) {
-                char c = src.charAt(pos++);
-                if (c == '"') return sb.toString();
-                if (c == '\\' && pos < src.length()) {
-                    char next = src.charAt(pos++);
-                    if (next == 'n') sb.append('\n');
-                    else if (next == 'r') sb.append('\r');
-                    else if (next == 't') sb.append('\t');
-                    else if (next == '"') sb.append('"');
-                    else if (next == '\\') sb.append('\\');
-                    else sb.append(next);
-                } else {
-                    sb.append(c);
-                }
-            }
-            return sb.toString();
-        }
-
-        private Boolean parseBoolean() {
-            if (src.startsWith("true", pos)) {
-                pos += 4;
-                return true;
-            } else if (src.startsWith("false", pos)) {
-                pos += 5;
-                return false;
-            }
-            throw new RuntimeException("Invalid boolean at " + pos);
-        }
-
-        private Object parseNull() {
-            if (src.startsWith("null", pos)) {
-                pos += 4;
-                return null;
-            }
-            throw new RuntimeException("Invalid null at " + pos);
-        }
-
-        private Number parseNumber() {
-            int start = pos;
-            if (src.charAt(pos) == '-') pos++;
-            while (pos < src.length() && (Character.isDigit(src.charAt(pos)) || src.charAt(pos) == '.' || src.charAt(pos) == 'e' || src.charAt(pos) == 'E' || src.charAt(pos) == '+' || src.charAt(pos) == '-')) {
-                pos++;
-            }
-            String numStr = src.substring(start, pos);
-            if (numStr.contains(".") || numStr.contains("e") || numStr.contains("E")) {
-                return Double.parseDouble(numStr);
-            } else {
-                long val = Long.parseLong(numStr);
-                if (val >= Integer.MIN_VALUE && val <= Integer.MAX_VALUE) {
-                    return (int) val;
-                }
-                return val;
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                rows.add(parseCsvLine(line));
             }
         }
+        return rows;
     }
 
-    public static class SimpleJsonSerializer {
-        public static String serialize(Object obj) {
-            StringBuilder sb = new StringBuilder();
-            serializeValue(obj, sb, 0);
-            return sb.toString();
-        }
+    /**
+     * Returns only the data rows (skipping the header at index 0) from a list of CSV rows.
+     * Convenience helper to avoid repeated "for (int i = 1; i < rows.size(); i++)" loops.
+     */
+    private static List<String[]> dataRows(List<String[]> rows) {
+        return rows.size() > 1 ? rows.subList(1, rows.size()) : Collections.emptyList();
+    }
 
-        @SuppressWarnings("unchecked")
-        private static void serializeValue(Object obj, StringBuilder sb, int indent) {
-            if (obj == null) {
-                sb.append("null");
-            } else if (obj instanceof String) {
-                sb.append('"').append(escapeString((String) obj)).append('"');
-            } else if (obj instanceof Boolean || obj instanceof Number) {
-                sb.append(obj.toString());
-            } else if (obj instanceof Map) {
-                Map<String, Object> map = (Map<String, Object>) obj;
-                if (map.isEmpty()) {
-                    sb.append("{}");
-                    return;
+    /**
+     * Parses one CSV line into an array of field strings.
+     * Respects double-quoted fields: fields may contain commas if wrapped in "".
+     * A literal double-quote inside a quoted field is represented as "".
+     *
+     * Example: 'foo,"bar,baz","say ""hi"""'  =>  ["foo", "bar,baz", "say \"hi\""]
+     */
+    private static String[] parseCsvLine(String line) {
+        List<String> fields = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"'); // escaped quote ("") inside a quoted field
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
                 }
-                sb.append("{\n");
-                int size = map.size();
-                int idx = 0;
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    indent(sb, indent + 2);
-                    sb.append('"').append(escapeString(entry.getKey())).append("\": ");
-                    serializeValue(entry.getValue(), sb, indent + 2);
-                    if (++idx < size) sb.append(",");
-                    sb.append("\n");
-                }
-                indent(sb, indent);
-                sb.append("}");
-            } else if (obj instanceof List) {
-                List<?> list = (List<?>) obj;
-                if (list.isEmpty()) {
-                    sb.append("[]");
-                    return;
-                }
-                sb.append("[\n");
-                int size = list.size();
-                for (int i = 0; i < size; i++) {
-                    indent(sb, indent + 2);
-                    serializeValue(list.get(i), sb, indent + 2);
-                    if (i < size - 1) sb.append(",");
-                    sb.append("\n");
-                }
-                indent(sb, indent);
-                sb.append("]");
+            } else if (c == ',' && !inQuotes) {
+                fields.add(current.toString());
+                current.setLength(0);
             } else {
-                sb.append('"').append(escapeString(obj.toString())).append('"');
+                current.append(c);
             }
         }
+        fields.add(current.toString()); // add the last field
+        return fields.toArray(new String[0]);
+    }
 
-        private static void indent(StringBuilder sb, int spaces) {
-            for (int i = 0; i < spaces; i++) sb.append(' ');
+    /**
+     * Wraps a value in double-quotes if it contains a comma, double-quote, or newline.
+     * Any existing double-quotes within the value are escaped by doubling them ("").
+     *
+     * @param value the raw string to escape
+     * @return a CSV-safe string
+     */
+    private static String escapeCsv(String value) {
+        if (value == null) return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
         }
+        return value;
+    }
 
-        private static String escapeString(String s) {
-            if (s == null) return "";
-            return s.replace("\\", "\\\\")
-                    .replace("\"", "\\\"")
-                    .replace("\n", "\\n")
-                    .replace("\r", "\\r")
-                    .replace("\t", "\\t");
-        }
+    /** Opens a UTF-8 PrintWriter, creating or overwriting the target file. */
+    private static PrintWriter openCsvWriter(String filePath) throws IOException {
+        return new PrintWriter(new OutputStreamWriter(
+                new FileOutputStream(filePath), java.nio.charset.StandardCharsets.UTF_8));
     }
 }

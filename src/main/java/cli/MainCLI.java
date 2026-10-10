@@ -18,12 +18,12 @@ public class MainCLI {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static void main(String[] args) {
-        // Load camp from JSON database
+        // Load camp state from CSV files in the data/ directory
         camp = DataManager.loadCamp(DB_PATH);
         System.out.println("=================================================");
         System.out.println("   Welcome to Adventure Camp Management System   ");
         System.out.println("=================================================");
-        System.out.println("Loaded database from: " + DB_PATH);
+        System.out.println("Data directory: " + DB_PATH);
 
         boolean running = true;
         while (running) {
@@ -93,7 +93,7 @@ public class MainCLI {
 
     private static void saveDatabase() {
         DataManager.saveCamp(camp, DB_PATH);
-        System.out.println("All changes successfully saved to " + DB_PATH);
+        System.out.println("All changes saved to CSV files in: " + DB_PATH + "/");
     }
 
     // --- 2. PARTICIPANTS ---
