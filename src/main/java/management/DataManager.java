@@ -9,6 +9,7 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * DataManager handles all persistence for the Adventure Camp Management System.
@@ -150,15 +151,17 @@ public class DataManager {
         for (String[] r : dataRows(readCsv(dataDir + "/instructors.csv"))) {
             Instructor inst = new Instructor(r[0], r[1], Integer.parseInt(r[2]), r[3], r[4]);
             if (r.length > 5 && !r[5].isEmpty()) {
-                for (String cert : r[5].split(";")) {
-                    inst.getCertifications().add(cert.trim());
-                }
+                Arrays.stream(r[5].split(";"))
+                        .map(String::trim)
+                        .filter(cert -> !cert.isEmpty())
+                        .forEach(inst.getCertifications()::add);
             }
             camp.getInstructors().add(inst);
             map.put(r[0], inst);
         }
         return map;
     }
+
 
     /**
      * Reads participants.csv: id, name, age, contactNumber, emergencyContact, medicalNotes, skillLevel
@@ -349,12 +352,12 @@ public class DataManager {
     private static void saveLocations(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/locations.csv")) {
             w.println("locationId,name,address,terrainType,capacity");
-            for (Location loc : camp.getLocations().getAll()) {
+            camp.getLocations().forEach(loc ->
                 w.println(String.join(",",
                         loc.getLocationId(), escapeCsv(loc.getName()),
                         escapeCsv(loc.getAddress()), escapeCsv(loc.getTerrainType()),
-                        String.valueOf(loc.getCapacity())));
-            }
+                        String.valueOf(loc.getCapacity())))
+            );
         }
     }
 
@@ -362,12 +365,12 @@ public class DataManager {
     private static void saveInstructors(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/instructors.csv")) {
             w.println("id,name,age,contactNumber,specialization,certifications");
-            for (Instructor inst : camp.getInstructors().getAll()) {
+            camp.getInstructors().forEach(inst ->
                 w.println(String.join(",",
                         inst.getId(), escapeCsv(inst.getName()), String.valueOf(inst.getAge()),
                         escapeCsv(inst.getContactNumber()), escapeCsv(inst.getSpecialization()),
-                        escapeCsv(String.join(";", inst.getCertifications()))));
-            }
+                        escapeCsv(String.join(";", inst.getCertifications()))))
+            );
         }
     }
 
@@ -375,12 +378,12 @@ public class DataManager {
     private static void saveParticipants(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/participants.csv")) {
             w.println("id,name,age,contactNumber,emergencyContact,medicalNotes,skillLevel");
-            for (Participant p : camp.getParticipants().getAll()) {
+            camp.getParticipants().forEach(p ->
                 w.println(String.join(",",
                         p.getId(), escapeCsv(p.getName()), String.valueOf(p.getAge()),
                         escapeCsv(p.getContactNumber()), escapeCsv(p.getEmergencyContact()),
-                        escapeCsv(p.getMedicalNotes()), escapeCsv(p.getSkillLevel())));
-            }
+                        escapeCsv(p.getMedicalNotes()), escapeCsv(p.getSkillLevel())))
+            );
         }
     }
 
@@ -393,7 +396,7 @@ public class DataManager {
     private static void saveEquipment(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/equipment.csv")) {
             w.println("equipmentId,name,condition,isAvailable,type,lastInspectionDate,safetyRating,sportType");
-            for (Equipment eq : camp.getEquipmentList().getAll()) {
+            camp.getEquipmentList().forEach(eq -> {
                 String type, lastInsp = "", rating = "", sport = "";
                 if (eq instanceof SafetyEquipment) {
                     SafetyEquipment seq = (SafetyEquipment) eq;
@@ -408,7 +411,7 @@ public class DataManager {
                 w.println(String.join(",",
                         eq.getEquipmentId(), escapeCsv(eq.getName()), escapeCsv(eq.getCondition()),
                         String.valueOf(eq.isAvailable()), type, lastInsp, rating, escapeCsv(sport)));
-            }
+            });
         }
     }
 
@@ -426,7 +429,7 @@ public class DataManager {
             w.println("activityId,title,description,durationMinutes,maxParticipants,"
                     + "locationId,instructorId,type,"
                     + "lifeguardRequired,waterBodyType,teamSize,terrainType,riskLevel");
-            for (Activity act : camp.getActivities().getAll()) {
+            camp.getActivities().forEach(act -> {
                 String locId  = act.getLocation()   != null ? act.getLocation().getLocationId() : "";
                 String instId = act.getInstructor() != null ? act.getInstructor().getId()       : "";
                 String type, lifeguard = "", waterBody = "", teamSize = "", terrain = "", risk = "";
@@ -449,7 +452,7 @@ public class DataManager {
                         String.valueOf(act.getDurationMinutes()), String.valueOf(act.getMaxParticipants()),
                         locId, instId, type,
                         lifeguard, escapeCsv(waterBody), teamSize, escapeCsv(terrain), escapeCsv(risk)));
-            }
+            });
         }
     }
 
@@ -457,11 +460,11 @@ public class DataManager {
     private static void saveSchedules(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/schedules.csv")) {
             w.println("entryId,activityId,startTime");
-            for (ScheduleEntry entry : camp.getSchedule().getEntries().getAll()) {
+            camp.getSchedule().getEntries().forEach(entry -> {
                 String actId = entry.getActivity()  != null ? entry.getActivity().getActivityId() : "";
                 String time  = entry.getStartTime() != null ? entry.getStartTime().toString()     : "";
                 w.println(String.join(",", entry.getEntryId(), actId, time));
-            }
+            });
         }
     }
 
@@ -469,12 +472,12 @@ public class DataManager {
     private static void saveRegistrations(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/registrations.csv")) {
             w.println("registrationId,participantId,activityId,registrationDate,status");
-            for (Registration reg : camp.getRegistrations().getAll()) {
+            camp.getRegistrations().forEach(reg -> {
                 String partId  = reg.getParticipant()      != null ? reg.getParticipant().getId()          : "";
                 String actId   = reg.getActivity()         != null ? reg.getActivity().getActivityId()     : "";
                 String regDate = reg.getRegistrationDate() != null ? reg.getRegistrationDate().toString()  : "";
                 w.println(String.join(",", reg.getRegistrationId(), partId, actId, regDate, reg.getStatus()));
-            }
+            });
         }
     }
 
@@ -482,14 +485,14 @@ public class DataManager {
     private static void saveSafetyChecks(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/safety_checks.csv")) {
             w.println("checkId,passed,remarks,equipmentId,activityId,checkDate");
-            for (SafetyCheck sc : camp.getSafetyChecks().getAll()) {
+            camp.getSafetyChecks().forEach(sc -> {
                 String eqId  = sc.getEquipment() != null ? sc.getEquipment().getEquipmentId() : "";
                 String actId = sc.getActivity()  != null ? sc.getActivity().getActivityId()   : "";
                 String date  = sc.getCheckDate() != null ? sc.getCheckDate().toString()       : "";
                 w.println(String.join(",",
                         sc.getCheckId(), String.valueOf(sc.isPassed()),
                         escapeCsv(sc.getRemarks()), eqId, actId, date));
-            }
+            });
         }
     }
 
@@ -500,15 +503,15 @@ public class DataManager {
     private static void saveEquipmentAllocations(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/equipment_allocations.csv")) {
             w.println("allocationId,equipmentId,activityId,allocationDate,returnDate,status");
-            for (Activity act : camp.getActivities().getAll()) {
-                for (EquipmentAllocation ea : act.getEquipmentAllocations()) {
+            camp.getActivities().forEach(act ->
+                act.getEquipmentAllocations().forEach(ea -> {
                     String eqId    = ea.getEquipment()    != null ? ea.getEquipment().getEquipmentId() : "";
                     String actId   = ea.getActivity()     != null ? ea.getActivity().getActivityId()   : "";
                     String alloc   = ea.getAllocationDate()!= null ? ea.getAllocationDate().toString()  : "";
                     String ret     = ea.getReturnDate()   != null ? ea.getReturnDate().toString()      : "";
                     w.println(String.join(",", ea.getAllocationId(), eqId, actId, alloc, ret, ea.getStatus()));
-                }
-            }
+                })
+            );
         }
     }
 
@@ -516,12 +519,12 @@ public class DataManager {
     private static void saveAttendance(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/attendance.csv")) {
             w.println("participantId,activityId,date,isPresent");
-            for (AttendanceRecord ar : camp.getAttendance().getRecords().getAll()) {
+            camp.getAttendance().getRecords().forEach(ar -> {
                 String partId = ar.getParticipant() != null ? ar.getParticipant().getId()      : "";
                 String actId  = ar.getActivity()    != null ? ar.getActivity().getActivityId() : "";
                 String date   = ar.getDate()        != null ? ar.getDate().toString()          : "";
                 w.println(String.join(",", partId, actId, date, String.valueOf(ar.isPresent())));
-            }
+            });
         }
     }
 
@@ -529,16 +532,17 @@ public class DataManager {
     private static void saveFeedbacks(Camp camp, String dataDir) throws IOException {
         try (PrintWriter w = openCsvWriter(dataDir + "/feedbacks.csv")) {
             w.println("feedbackId,rating,comments,participantId,activityId,submittedDate");
-            for (Feedback fb : camp.getFeedbacks().getAll()) {
+            camp.getFeedbacks().forEach(fb -> {
                 String partId  = fb.getParticipant()  != null ? fb.getParticipant().getId()        : "";
                 String actId   = fb.getActivity()     != null ? fb.getActivity().getActivityId()   : "";
                 String subDate = fb.getSubmittedDate()!= null ? fb.getSubmittedDate().toString()   : "";
                 w.println(String.join(",",
                         fb.getFeedbackId(), String.valueOf(fb.getRating()),
                         escapeCsv(fb.getComments()), partId, actId, subDate));
-            }
+            });
         }
     }
+
 
     // =========================================================================
     // DEFAULT SEED DATA
@@ -608,12 +612,12 @@ public class DataManager {
     }
 
     /**
-     * Returns only the data rows (skipping the header at index 0) from a list of CSV rows.
-     * Convenience helper to avoid repeated "for (int i = 1; i < rows.size(); i++)" loops.
+     * Returns only the data rows (skipping the header at index 0) from a list of CSV rows using stream pipeline.
      */
     private static List<String[]> dataRows(List<String[]> rows) {
-        return rows.size() > 1 ? rows.subList(1, rows.size()) : Collections.emptyList();
+        return rows.stream().skip(1).collect(Collectors.toList());
     }
+
 
     /**
      * Parses one CSV line into an array of field strings.

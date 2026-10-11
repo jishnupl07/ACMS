@@ -11,6 +11,7 @@ The primary goal of this project is to build a clean, understandable, and demons
 - Interfaces and Delegation
 - Java Collections and User-defined Generic Types (`Repository<T>`)
 - Exception Handling
+- Functional Programming and Lambda Expressions (`Predicate`, `Consumer`, `Function`, `Comparator`, Streams, Method References)
 
 **Note:** This is an academic project. It does not use databases, REST APIs, web services, or cloud infrastructure. All data is stored in memory using Java Collections.
 

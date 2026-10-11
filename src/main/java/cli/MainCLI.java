@@ -102,10 +102,10 @@ public class MainCLI {
         if (camp.getParticipants().size() == 0) {
             System.out.println("No participants found.");
         } else {
-            for (Participant p : camp.getParticipants().getAll()) {
+            camp.getParticipants().forEach(p ->
                 System.out.println(String.format("ID: %-4s | Name: %-12s | Age: %-2d | Contact: %-10s | Emergency: %-14s | Skill: %-12s | MedNotes: %s",
-                        p.getId(), p.getName(), p.getAge(), p.getContactNumber(), p.getEmergencyContact(), p.getSkillLevel(), p.getMedicalNotes()));
-            }
+                        p.getId(), p.getName(), p.getAge(), p.getContactNumber(), p.getEmergencyContact(), p.getSkillLevel(), p.getMedicalNotes()))
+            );
         }
 
         System.out.print("\nAdd new participant? (y/n): ");
@@ -141,10 +141,10 @@ public class MainCLI {
         if (camp.getInstructors().size() == 0) {
             System.out.println("No instructors found.");
         } else {
-            for (Instructor i : camp.getInstructors().getAll()) {
+            camp.getInstructors().forEach(i ->
                 System.out.println(String.format("ID: %-4s | Name: %-12s | Age: %-2d | Contact: %-10s | Specialization: %-16s | Certifications: %s",
-                        i.getId(), i.getName(), i.getAge(), i.getContactNumber(), i.getSpecialization(), String.join(", ", i.getCertifications())));
-            }
+                        i.getId(), i.getName(), i.getAge(), i.getContactNumber(), i.getSpecialization(), String.join(", ", i.getCertifications())))
+            );
         }
 
         System.out.print("\nAdd new instructor? (y/n): ");
@@ -164,9 +164,10 @@ public class MainCLI {
                 String iId = "I" + (camp.getInstructors().size() + 1);
                 Instructor newI = new Instructor(iId, name, age, contactNumber, spec);
                 if (!certsInput.isEmpty()) {
-                    for (String c : certsInput.split(",")) {
-                        newI.getCertifications().add(c.trim());
-                    }
+                    java.util.Arrays.stream(certsInput.split(","))
+                            .map(String::trim)
+                            .filter(c -> !c.isEmpty())
+                            .forEach(newI.getCertifications()::add);
                 }
                 camp.getInstructors().add(newI);
                 saveDatabase();
@@ -183,10 +184,10 @@ public class MainCLI {
         if (camp.getLocations().size() == 0) {
             System.out.println("No locations found.");
         } else {
-            for (Location loc : camp.getLocations().getAll()) {
+            camp.getLocations().forEach(loc ->
                 System.out.println(String.format("ID: %-4s | Name: %-16s | Address: %-16s | Terrain: %-12s | Capacity: %d",
-                        loc.getLocationId(), loc.getName(), loc.getAddress(), loc.getTerrainType(), loc.getCapacity()));
-            }
+                        loc.getLocationId(), loc.getName(), loc.getAddress(), loc.getTerrainType(), loc.getCapacity()))
+            );
         }
 
         System.out.print("\nAdd new location? (y/n): ");
@@ -218,14 +219,15 @@ public class MainCLI {
         if (camp.getActivities().size() == 0) {
             System.out.println("No activities found.");
         } else {
-            for (Activity a : camp.getActivities().getAll()) {
+            camp.getActivities().forEach(a -> {
                 String locName = a.getLocation() != null ? a.getLocation().getName() : "None";
                 String instName = a.getInstructor() != null ? a.getInstructor().getName() : "None";
                 String type = a.getClass().getSimpleName();
                 System.out.println(String.format("ID: %-4s | Type: %-20s | Title: %-20s | Duration: %3d min | Max: %2d | Loc: %-12s | Inst: %-10s | Enrolled: %d",
                         a.getActivityId(), type, a.getTitle(), a.getDurationMinutes(), a.getMaxParticipants(), locName, instName, a.getParticipants().size()));
-            }
+            });
         }
+
 
         System.out.print("\nAdd new activity? (y/n): ");
         if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
@@ -298,11 +300,11 @@ public class MainCLI {
         if (camp.getSchedule().getEntries().size() == 0) {
             System.out.println("No scheduled activities.");
         } else {
-            for (ScheduleEntry se : camp.getSchedule().getEntries().getAll()) {
+            camp.getSchedule().getEntries().forEach(se -> {
                 String actTitle = se.getActivity() != null ? se.getActivity().getTitle() : "Unknown";
                 System.out.println(String.format("Entry ID: %-5s | Date: %-10s | Start: %-16s | Activity: %s",
                         se.getEntryId(), se.getDate(), se.getStartTime(), actTitle));
-            }
+            });
         }
 
         System.out.print("\nSchedule an activity? (y/n): ");
@@ -358,7 +360,7 @@ public class MainCLI {
         if (camp.getEquipmentList().size() == 0) {
             System.out.println("No equipment found.");
         } else {
-            for (Equipment eq : camp.getEquipmentList().getAll()) {
+            camp.getEquipmentList().forEach(eq -> {
                 String specific = "";
                 if (eq instanceof SafetyEquipment) {
                     SafetyEquipment seq = (SafetyEquipment) eq;
@@ -369,8 +371,9 @@ public class MainCLI {
                 }
                 System.out.println(String.format("ID: %-4s | Name: %-18s | Condition: %-6s | Available: %-5s | %s",
                         eq.getEquipmentId(), eq.getName(), eq.getCondition(), eq.isAvailable(), specific));
-            }
+            });
         }
+
 
         System.out.println("\nActions:");
         System.out.println("1. Add New Equipment");
@@ -455,15 +458,13 @@ public class MainCLI {
                     System.out.println("Equipment not found.");
                     return;
                 }
-                boolean foundAlloc = false;
-                for (Activity a : camp.getActivities().getAll()) {
-                    for (EquipmentAllocation ea : a.getEquipmentAllocations()) {
-                        if (ea.getEquipment() != null && ea.getEquipment().getEquipmentId().equals(retEq.getEquipmentId()) && "Allocated".equalsIgnoreCase(ea.getStatus())) {
-                            ea.returnEquipment();
-                            foundAlloc = true;
-                        }
-                    }
-                }
+                camp.getActivities().forEach(a ->
+                    a.getEquipmentAllocations().stream()
+                        .filter(ea -> ea.getEquipment() != null &&
+                                ea.getEquipment().getEquipmentId().equalsIgnoreCase(retEq.getEquipmentId()) &&
+                                "Allocated".equalsIgnoreCase(ea.getStatus()))
+                        .forEach(EquipmentAllocation::returnEquipment)
+                );
                 retEq.setAvailable(true);
                 saveDatabase();
                 System.out.println("Equipment returned to inventory successfully.");
@@ -480,12 +481,12 @@ public class MainCLI {
         if (camp.getAttendance().getRecords().size() == 0) {
             System.out.println("No attendance records recorded yet.");
         } else {
-            for (AttendanceRecord ar : camp.getAttendance().getRecords().getAll()) {
+            camp.getAttendance().getRecords().forEach(ar -> {
                 String pName = ar.getParticipant() != null ? ar.getParticipant().getName() : "Unknown";
                 String aTitle = ar.getActivity() != null ? ar.getActivity().getTitle() : "Unknown";
                 System.out.println(String.format("Participant: %-12s | Activity: %-20s | Date: %-10s | Present: %s",
                         pName, aTitle, ar.getDate(), ar.isPresent() ? "YES" : "NO"));
-            }
+            });
         }
 
         System.out.print("\nMark attendance for an activity? (y/n): ");
@@ -504,12 +505,12 @@ public class MainCLI {
             }
 
             System.out.println("\nMarking attendance for " + act.getTitle() + ":");
-            for (Participant p : act.getParticipants()) {
+            act.getParticipants().forEach(p -> {
                 System.out.print("Is " + p.getName() + " (" + p.getId() + ") present? (y/n): ");
                 boolean present = scanner.nextLine().trim().equalsIgnoreCase("y");
                 AttendanceRecord record = new AttendanceRecord(p, act, LocalDate.now(), present);
                 camp.getAttendance().recordAttendance(record);
-            }
+            });
             saveDatabase();
             System.out.println("Attendance successfully saved.");
         }
@@ -521,12 +522,12 @@ public class MainCLI {
         if (camp.getFeedbacks().size() == 0) {
             System.out.println("No feedback submitted yet.");
         } else {
-            for (Feedback fb : camp.getFeedbacks().getAll()) {
+            camp.getFeedbacks().forEach(fb -> {
                 String pName = fb.getParticipant() != null ? fb.getParticipant().getName() : "Unknown";
                 String aTitle = fb.getActivity() != null ? fb.getActivity().getTitle() : "Unknown";
                 System.out.println(String.format("ID: %-4s | Rating: %d/5 | Participant: %-10s | Activity: %-16s | Date: %-10s | Comments: %s",
                         fb.getFeedbackId(), fb.getRating(), pName, aTitle, fb.getSubmittedDate(), fb.getComments()));
-            }
+            });
         }
 
         System.out.print("\nSubmit new feedback? (y/n): ");
@@ -569,39 +570,25 @@ public class MainCLI {
         }
     }
 
-    // --- HELPER LOOKUP METHODS ---
+    // --- HELPER LOOKUP METHODS (Using Lambdas) ---
     private static Participant findParticipant(String id) {
-        for (Participant p : camp.getParticipants().getAll()) {
-            if (p.getId().equalsIgnoreCase(id)) return p;
-        }
-        return null;
+        return camp.findParticipant(id).orElse(null);
     }
 
     private static Instructor findInstructor(String id) {
-        for (Instructor i : camp.getInstructors().getAll()) {
-            if (i.getId().equalsIgnoreCase(id)) return i;
-        }
-        return null;
+        return camp.findInstructor(id).orElse(null);
     }
 
     private static Location findLocation(String id) {
-        for (Location loc : camp.getLocations().getAll()) {
-            if (loc.getLocationId().equalsIgnoreCase(id)) return loc;
-        }
-        return null;
+        return camp.findLocation(id).orElse(null);
     }
 
     private static Activity findActivity(String id) {
-        for (Activity a : camp.getActivities().getAll()) {
-            if (a.getActivityId().equalsIgnoreCase(id)) return a;
-        }
-        return null;
+        return camp.findActivity(id).orElse(null);
     }
 
     private static Equipment findEquipment(String id) {
-        for (Equipment eq : camp.getEquipmentList().getAll()) {
-            if (eq.getEquipmentId().equalsIgnoreCase(id)) return eq;
-        }
-        return null;
+        return camp.findEquipment(id).orElse(null);
     }
 }
+

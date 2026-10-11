@@ -61,6 +61,29 @@ public abstract class Activity implements Schedulable {
     public void addFeedback(Feedback f) { feedbackList.add(f); }
     public void addEquipmentAllocation(EquipmentAllocation ea) { equipmentAllocations.add(ea); }
 
+    // --- Lambda & Stream Operations ---
+
+    /** Calculates the average feedback rating for this activity using lambda expression. */
+    public double getAverageRating() {
+        return feedbackList.stream()
+                .mapToInt(Feedback::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    /** Checks whether a participant is enrolled in this activity using lambda predicate. */
+    public boolean hasParticipant(String participantId) {
+        return participants.stream()
+                .anyMatch(p -> p.getId().equalsIgnoreCase(participantId));
+    }
+
+    /** Returns currently active equipment allocations using lambda filter. */
+    public List<EquipmentAllocation> getActiveAllocations() {
+        return equipmentAllocations.stream()
+                .filter(ea -> "Allocated".equalsIgnoreCase(ea.getStatus()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     @Override
     public LocalDateTime getStartTime() { return startTime; }
     
@@ -76,3 +99,4 @@ public abstract class Activity implements Schedulable {
 
     public abstract void conductActivity();
 }
+

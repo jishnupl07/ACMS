@@ -1,0 +1,4 @@
+locationId,name,address,terrainType,capacity
+L1,River Zone,North Woods,Water,20
+L2,Climbing Wall,Base Camp,Mountain,10
+L3,Camp Ground,Central Field,Grassland,50

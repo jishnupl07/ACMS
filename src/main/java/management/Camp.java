@@ -46,7 +46,8 @@ public class Camp {
         if(a.getParticipants().size() >= a.getMaxParticipants()) {
             throw new CapacityExceededException("Activity capacity reached.");
         }
-        if(a.getParticipants().contains(p)) {
+        // Using lambda predicate to verify if participant is already registered
+        if(a.getParticipants().stream().anyMatch(participant -> participant.getId().equalsIgnoreCase(p.getId()))) {
             throw new RegistrationException("Participant already registered for this activity.");
         }
 
@@ -83,8 +84,67 @@ public class Camp {
             feedback.getActivity().addFeedback(feedback);
         }
     }
+
+    // --- Lambda & Functional Lookups and Queries ---
+
+    public java.util.Optional<Participant> findParticipant(String id) {
+        return participants.findFirst(p -> p.getId().equalsIgnoreCase(id));
+    }
+
+    public java.util.Optional<Instructor> findInstructor(String id) {
+        return instructors.findFirst(i -> i.getId().equalsIgnoreCase(id));
+    }
+
+    public java.util.Optional<Activity> findActivity(String id) {
+        return activities.findFirst(a -> a.getActivityId().equalsIgnoreCase(id));
+    }
+
+    public java.util.Optional<Location> findLocation(String id) {
+        return locations.findFirst(l -> l.getLocationId().equalsIgnoreCase(id));
+    }
+
+    public java.util.Optional<Equipment> findEquipment(String id) {
+        return equipmentList.findFirst(e -> e.getEquipmentId().equalsIgnoreCase(id));
+    }
+
+    /** Returns all available equipment using a lambda method reference predicate. */
+    public java.util.List<Equipment> getAvailableEquipment() {
+        return equipmentList.filter(Equipment::isAvailable);
+    }
+
+    /** Returns all passed safety checks using a lambda method reference predicate. */
+    public java.util.List<SafetyCheck> getPassedSafetyChecks() {
+        return safetyChecks.filter(SafetyCheck::isPassed);
+    }
+
+    /** Returns all failed safety checks using a lambda predicate. */
+    public java.util.List<SafetyCheck> getFailedSafetyChecks() {
+        return safetyChecks.filter(sc -> !sc.isPassed());
+    }
+
+    /** Calculates average feedback rating using stream and lambda expression. */
+    public double getAverageFeedbackRating() {
+        return feedbacks.getAll().stream()
+                .mapToInt(Feedback::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    /** Sends a notification using the functional interface Notifiable with a lambda. */
+    public void notifyStaff(String message, Notifiable notifier) {
+        notifier.sendNotification(message);
+    }
+
+    /** Broadcasts message to all instructors using a lambda consumer. */
+    public void broadcastToInstructors(String message) {
+        instructors.forEach(i -> i.sendNotification(message));
+    }
     
     public void generateReport() {
+        long availableEquip = equipmentList.count(Equipment::isAvailable);
+        long passedChecks = safetyChecks.count(SafetyCheck::isPassed);
+        double avgRating = getAverageFeedbackRating();
+
         System.out.println("\n==========================================");
         System.out.println("              CAMP REPORT                 ");
         System.out.println("==========================================");
@@ -95,15 +155,16 @@ public class Camp {
         System.out.println("Total Locations: " + locations.size());
         System.out.println("Total Instructors: " + instructors.size());
         System.out.println("Total Participants: " + participants.size());
-        System.out.println("Total Equipment: " + equipmentList.size());
+        System.out.println("Total Equipment: " + equipmentList.size() + " (" + availableEquip + " available)");
         System.out.println("Total Activities: " + activities.size());
         System.out.println("Scheduled Entries: " + schedule.getEntries().size());
         System.out.println("Total Registrations: " + registrations.size());
-        System.out.println("Total Safety Checks: " + safetyChecks.size());
+        System.out.println("Total Safety Checks: " + safetyChecks.size() + " (" + passedChecks + " passed)");
         System.out.println("Attendance Records: " + attendance.getRecords().size());
-        System.out.println("Total Feedbacks: " + feedbacks.size());
+        System.out.println("Total Feedbacks: " + feedbacks.size() + String.format(" (Avg Rating: %.1f/5)", avgRating));
         System.out.println("==========================================\n");
     }
+
 
     // Getters and Setters
     public String getCampId() { return campId; }

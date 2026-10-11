@@ -24,6 +24,21 @@ public class Instructor extends Person implements Notifiable {
     public List<Activity> getAssignedActivities() { return assignedActivities; }
     public boolean isAvailable() { return isAvailable; }
 
+    // --- Lambda & Stream Operations ---
+
+    /** Checks if the instructor has a specific certification using lambda expression. */
+    public boolean hasCertification(String certName) {
+        return certifications.stream()
+                .anyMatch(c -> c.equalsIgnoreCase(certName));
+    }
+
+    /** Returns titles of all activities assigned to this instructor using lambda mapping. */
+    public List<String> getAssignedActivityTitles() {
+        return assignedActivities.stream()
+                .map(Activity::getTitle)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     @Override
     public void displayInfo() {
         System.out.println("Instructor [" + getId() + "] " + getName() + " - Specialization: " + specialization);
@@ -35,3 +50,4 @@ public class Instructor extends Person implements Notifiable {
     }
     public java.util.List<String> getCertifications() { return certifications; }
 }
+
