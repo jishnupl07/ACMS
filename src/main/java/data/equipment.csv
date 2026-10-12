@@ -1,5 +1,0 @@
-equipmentId,name,condition,isAvailable,type,lastInspectionDate,safetyRating,sportType
-E1,Life Jacket,Good,true,SafetyEquipment,2026-10-10,A,
-E2,Climbing Helmet,Good,true,SafetyEquipment,2026-10-10,A,
-E3,Kayak Paddle,Good,true,SportsEquipment,,,Kayaking
-E4,Climbing Harness,Good,true,SportsEquipment,,,Climbing

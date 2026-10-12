@@ -31,4 +31,13 @@ public class Registration {
     public Participant getParticipant() { return participant; }
     public LocalDate getRegistrationDate() { return registrationDate; }
     public String getStatus() { return status; }
+
+    public void displayInfo() {
+        String pName = participant != null ? participant.getName() : "Unknown";
+        String pId = participant != null ? participant.getId() : "Unknown";
+        String aTitle = activity != null ? activity.getTitle() : "Unknown";
+        String aId = activity != null ? activity.getActivityId() : "Unknown";
+        System.out.println(String.format("Reg ID: %-5s | Participant: %-12s (%-4s) | Activity: %-22s (%-4s) | Date: %-10s | Status: %s",
+                registrationId, pName, pId, aTitle, aId, registrationDate, status));
+    }
 }

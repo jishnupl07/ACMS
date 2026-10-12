@@ -122,6 +122,16 @@ public class Camp {
         return safetyChecks.filter(sc -> !sc.isPassed());
     }
 
+    /** Returns all registrations for a specific participant using a lambda predicate. */
+    public java.util.List<Registration> getRegistrationsForParticipant(String participantId) {
+        return registrations.filter(r -> r.getParticipant() != null && r.getParticipant().getId().equalsIgnoreCase(participantId));
+    }
+
+    /** Returns all registrations for a specific activity using a lambda predicate. */
+    public java.util.List<Registration> getRegistrationsForActivity(String activityId) {
+        return registrations.filter(r -> r.getActivity() != null && r.getActivity().getActivityId().equalsIgnoreCase(activityId));
+    }
+
     /** Calculates average feedback rating using stream and lambda expression. */
     public double getAverageFeedbackRating() {
         return feedbacks.getAll().stream()

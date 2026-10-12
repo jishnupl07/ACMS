@@ -34,7 +34,7 @@ public class MainCLI {
             System.out.println("4. Manage Locations");
             System.out.println("5. Manage Activities");
             System.out.println("6. Schedule Activity");
-            System.out.println("7. Register Participant for Activity");
+            System.out.println("7. Manage Registrations");
             System.out.println("8. Manage Equipment & Safety");
             System.out.println("9. Attendance Management");
             System.out.println("10. Feedback Management");
@@ -64,7 +64,7 @@ public class MainCLI {
                         manageScheduling();
                         break;
                     case "7":
-                        registerParticipant();
+                        manageRegistrations();
                         break;
                     case "8":
                         manageEquipment();
@@ -330,9 +330,82 @@ public class MainCLI {
         }
     }
 
-    // --- 7. REGISTER PARTICIPANT ---
+    // --- 7. REGISTRATIONS ---
+    private static void manageRegistrations() throws CampException {
+        displayRegistrations();
+
+        System.out.println("\nActions:");
+        System.out.println("1. Register Participant for Activity");
+        System.out.println("2. View Registrations by Participant");
+        System.out.println("3. View Registrations by Activity");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String regChoice = scanner.nextLine().trim();
+
+        if (regChoice.equals("1") || regChoice.equalsIgnoreCase("y")) {
+            registerParticipant();
+        } else if (regChoice.equals("2")) {
+            viewRegistrationsByParticipant();
+        } else if (regChoice.equals("3")) {
+            viewRegistrationsByActivity();
+        }
+    }
+
+    private static void displayRegistrations() {
+        System.out.println("\n=== ACTIVITY REGISTRATIONS ===");
+        if (camp.getRegistrations().size() == 0) {
+            System.out.println("No registrations found.");
+        } else {
+            camp.getRegistrations().forEach(Registration::displayInfo);
+        }
+    }
+
+    private static void viewRegistrationsByParticipant() {
+        System.out.print("Enter Participant ID (e.g. P1): ");
+        String pId = scanner.nextLine().trim();
+        Participant part = findParticipant(pId);
+        if (part == null) {
+            System.out.println("Participant ID not found.");
+            return;
+        }
+        System.out.println("\n=== REGISTRATIONS FOR " + part.getName() + " (" + part.getId() + ") ===");
+        java.util.List<Registration> list = camp.getRegistrationsForParticipant(part.getId());
+        if (list.isEmpty()) {
+            System.out.println("No registrations found for this participant.");
+        } else {
+            list.forEach(r -> {
+                String aTitle = r.getActivity() != null ? r.getActivity().getTitle() : "Unknown";
+                String aId = r.getActivity() != null ? r.getActivity().getActivityId() : "Unknown";
+                System.out.println(String.format("Reg ID: %-5s | Activity: %-22s (%-4s) | Date: %-10s | Status: %s",
+                        r.getRegistrationId(), aTitle, aId, r.getRegistrationDate(), r.getStatus()));
+            });
+        }
+    }
+
+    private static void viewRegistrationsByActivity() {
+        System.out.print("Enter Activity ID (e.g. A1): ");
+        String aId = scanner.nextLine().trim();
+        Activity act = findActivity(aId);
+        if (act == null) {
+            System.out.println("Activity ID not found.");
+            return;
+        }
+        System.out.println("\n=== REGISTRATIONS FOR " + act.getTitle() + " (" + act.getActivityId() + ") ===");
+        java.util.List<Registration> list = camp.getRegistrationsForActivity(act.getActivityId());
+        if (list.isEmpty()) {
+            System.out.println("No participants registered for this activity.");
+        } else {
+            list.forEach(r -> {
+                String pName = r.getParticipant() != null ? r.getParticipant().getName() : "Unknown";
+                String pId = r.getParticipant() != null ? r.getParticipant().getId() : "Unknown";
+                System.out.println(String.format("Reg ID: %-5s | Participant: %-15s (%-4s) | Date: %-10s | Status: %s",
+                        r.getRegistrationId(), pName, pId, r.getRegistrationDate(), r.getStatus()));
+            });
+        }
+    }
+
     private static void registerParticipant() throws CampException {
-        System.out.println("\n=== ACTIVITY REGISTRATION ===");
+        System.out.println("\n--- Register Participant ---");
         System.out.print("Enter Participant ID (e.g. P1): ");
         String pId = scanner.nextLine().trim();
         Participant part = findParticipant(pId);
