@@ -2,4 +2,3 @@ activityId,title,description,durationMinutes,maxParticipants,locationId,instruct
 A1,Kayaking Basics,Learn fundamentals of kayaking,120,10,L1,I1,WaterActivity,true,River,,,
 A2,Rock Climbing,Introductory rock climbing wall,90,8,L2,I2,AdventureActivity,,,,Rock Face,Moderate
 A3,Rope Course Challenge,Obstacle course navigation,60,15,L3,I1,TeamBuildingActivity,,,5,,
-A4,Paper Presentation,Present your papers,120,50,L4,I3,TeamBuildingActivity,,,5,,

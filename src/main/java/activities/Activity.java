@@ -47,7 +47,9 @@ public abstract class Activity implements Schedulable {
     public int getDurationMinutes() { return durationMinutes; }
     public int getMaxParticipants() { return maxParticipants; }
     public Location getLocation() { return location; }
+    public void setLocation(Location location) { this.location = location; }
     public Instructor getInstructor() { return instructor; }
+    public void setInstructor(Instructor instructor) { this.instructor = instructor; }
     public List<Participant> getParticipants() { return participants; }
     public List<Feedback> getFeedbackList() { return feedbackList; }
     public List<EquipmentAllocation> getEquipmentAllocations() { return equipmentAllocations; }

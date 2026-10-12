@@ -2,4 +2,3 @@ registrationId,participantId,activityId,registrationDate,status
 REG1,P1,A1,2026-10-11,Confirmed
 REG2,P2,A2,2026-10-12,Confirmed
 REG3,P1,A2,2026-10-12,Confirmed
-REG4,P6,A4,2026-10-12,Confirmed

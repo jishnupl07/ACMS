@@ -38,8 +38,9 @@ public class MainCLI {
             System.out.println("8. Manage Equipment & Safety");
             System.out.println("9. Attendance Management");
             System.out.println("10. Feedback Management");
+            System.out.println("11. Send Notifications");
             System.out.println("0. Save & Exit");
-            System.out.print("Select an option (0-10): ");
+            System.out.print("Select an option (0-11): ");
 
             String choice = scanner.nextLine().trim();
 
@@ -75,12 +76,15 @@ public class MainCLI {
                     case "10":
                         manageFeedback();
                         break;
+                    case "11":
+                        manageNotifications();
+                        break;
                     case "0":
                         running = false;
                         saveDatabase();
                         break;
                     default:
-                        System.out.println("Invalid option. Please enter a number between 0 and 10.");
+                        System.out.println("Invalid option. Please enter a number between 0 and 11.");
                 }
             } catch (CampException e) {
                 System.out.println("\n[CAMP ERROR] " + e.getMessage());
@@ -108,8 +112,14 @@ public class MainCLI {
             );
         }
 
-        System.out.print("\nAdd new participant? (y/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+        System.out.println("\nActions:");
+        System.out.println("1. Add New Participant");
+        System.out.println("2. Remove Participant");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String pChoice = scanner.nextLine().trim();
+
+        if (pChoice.equals("1") || pChoice.equalsIgnoreCase("y")) {
             try {
                 System.out.print("Name: ");
                 String name = scanner.nextLine().trim();
@@ -132,6 +142,23 @@ public class MainCLI {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number for age. Participant creation aborted.");
             }
+        } else if (pChoice.equals("2")) {
+            System.out.print("Enter Participant ID to remove (e.g. P1): ");
+            String remId = scanner.nextLine().trim();
+            Participant p = findParticipant(remId);
+            if (p == null) {
+                System.out.println("Participant not found.");
+                return;
+            }
+            System.out.print("Are you sure you want to remove " + p.getName() + " (" + p.getId() + ")? (y/n): ");
+            if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+                if (camp.removeParticipant(remId)) {
+                    saveDatabase();
+                    System.out.println("Participant " + p.getName() + " (" + remId + ") and all associated registrations were removed successfully.");
+                } else {
+                    System.out.println("Failed to remove participant.");
+                }
+            }
         }
     }
 
@@ -147,8 +174,14 @@ public class MainCLI {
             );
         }
 
-        System.out.print("\nAdd new instructor? (y/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+        System.out.println("\nActions:");
+        System.out.println("1. Add New Instructor");
+        System.out.println("2. Remove Instructor");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String iChoice = scanner.nextLine().trim();
+
+        if (iChoice.equals("1") || iChoice.equalsIgnoreCase("y")) {
             try {
                 System.out.print("Name: ");
                 String name = scanner.nextLine().trim();
@@ -175,6 +208,23 @@ public class MainCLI {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number for age. Instructor creation aborted.");
             }
+        } else if (iChoice.equals("2")) {
+            System.out.print("Enter Instructor ID to remove (e.g. I1): ");
+            String remId = scanner.nextLine().trim();
+            Instructor inst = findInstructor(remId);
+            if (inst == null) {
+                System.out.println("Instructor not found.");
+                return;
+            }
+            System.out.print("Are you sure you want to remove " + inst.getName() + " (" + inst.getId() + ")? (y/n): ");
+            if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+                if (camp.removeInstructor(remId)) {
+                    saveDatabase();
+                    System.out.println("Instructor " + inst.getName() + " (" + remId + ") removed successfully.");
+                } else {
+                    System.out.println("Failed to remove instructor.");
+                }
+            }
         }
     }
 
@@ -190,8 +240,14 @@ public class MainCLI {
             );
         }
 
-        System.out.print("\nAdd new location? (y/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+        System.out.println("\nActions:");
+        System.out.println("1. Add New Location");
+        System.out.println("2. Remove Location");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String lChoice = scanner.nextLine().trim();
+
+        if (lChoice.equals("1") || lChoice.equalsIgnoreCase("y")) {
             try {
                 System.out.print("Location Name: ");
                 String name = scanner.nextLine().trim();
@@ -209,6 +265,23 @@ public class MainCLI {
                 System.out.println("Location added successfully with ID: " + lId);
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number for capacity. Location creation aborted.");
+            }
+        } else if (lChoice.equals("2")) {
+            System.out.print("Enter Location ID to remove (e.g. L1): ");
+            String remId = scanner.nextLine().trim();
+            Location loc = findLocation(remId);
+            if (loc == null) {
+                System.out.println("Location not found.");
+                return;
+            }
+            System.out.print("Are you sure you want to remove " + loc.getName() + " (" + loc.getLocationId() + ")? (y/n): ");
+            if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+                if (camp.removeLocation(remId)) {
+                    saveDatabase();
+                    System.out.println("Location " + loc.getName() + " (" + remId + ") removed successfully.");
+                } else {
+                    System.out.println("Failed to remove location.");
+                }
             }
         }
     }
@@ -229,8 +302,14 @@ public class MainCLI {
         }
 
 
-        System.out.print("\nAdd new activity? (y/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+        System.out.println("\nActions:");
+        System.out.println("1. Add New Activity");
+        System.out.println("2. Remove Activity");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String aChoice = scanner.nextLine().trim();
+
+        if (aChoice.equals("1") || aChoice.equalsIgnoreCase("y")) {
             try {
                 System.out.println("Select Activity Type:");
                 System.out.println("1. Adventure Activity (Rock Climbing, Trekking, etc.)");
@@ -291,6 +370,23 @@ public class MainCLI {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid numeric input. Activity creation aborted.");
             }
+        } else if (aChoice.equals("2")) {
+            System.out.print("Enter Activity ID to remove (e.g. A1): ");
+            String remId = scanner.nextLine().trim();
+            Activity act = findActivity(remId);
+            if (act == null) {
+                System.out.println("Activity not found.");
+                return;
+            }
+            System.out.print("Are you sure you want to remove '" + act.getTitle() + "' (" + act.getActivityId() + ")? (y/n): ");
+            if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+                if (camp.removeActivity(remId)) {
+                    saveDatabase();
+                    System.out.println("Activity '" + act.getTitle() + "' (" + remId + ") and all its registrations/schedule entries were removed successfully.");
+                } else {
+                    System.out.println("Failed to remove activity.");
+                }
+            }
         }
     }
 
@@ -307,8 +403,14 @@ public class MainCLI {
             });
         }
 
-        System.out.print("\nSchedule an activity? (y/n): ");
-        if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+        System.out.println("\nActions:");
+        System.out.println("1. Schedule an Activity");
+        System.out.println("2. Remove Schedule Entry");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String sChoice = scanner.nextLine().trim();
+
+        if (sChoice.equals("1") || sChoice.equalsIgnoreCase("y")) {
             System.out.print("Enter Activity ID: ");
             String aId = scanner.nextLine().trim();
             Activity act = findActivity(aId);
@@ -327,6 +429,17 @@ public class MainCLI {
             } catch (Exception e) {
                 System.out.println("Invalid date/time format. Please use 'YYYY-MM-DD HH:mm'.");
             }
+        } else if (sChoice.equals("2")) {
+            System.out.print("Enter Schedule Entry ID to remove (e.g. SCH1): ");
+            String remId = scanner.nextLine().trim();
+            java.util.Optional<ScheduleEntry> opt = camp.getSchedule().getEntries().findFirst(se -> se.getEntryId().equalsIgnoreCase(remId));
+            if (!opt.isPresent()) {
+                System.out.println("Schedule entry not found.");
+                return;
+            }
+            camp.getSchedule().removeEntry(opt.get());
+            saveDatabase();
+            System.out.println("Schedule entry " + remId + " removed successfully.");
         }
     }
 
@@ -338,6 +451,7 @@ public class MainCLI {
         System.out.println("1. Register Participant for Activity");
         System.out.println("2. View Registrations by Participant");
         System.out.println("3. View Registrations by Activity");
+        System.out.println("4. Cancel / Remove Registration");
         System.out.println("0. Back to Main Menu");
         System.out.print("Choice: ");
         String regChoice = scanner.nextLine().trim();
@@ -348,6 +462,15 @@ public class MainCLI {
             viewRegistrationsByParticipant();
         } else if (regChoice.equals("3")) {
             viewRegistrationsByActivity();
+        } else if (regChoice.equals("4")) {
+            System.out.print("Enter Registration ID to cancel (e.g. REG1): ");
+            String remId = scanner.nextLine().trim();
+            if (camp.cancelRegistration(remId)) {
+                saveDatabase();
+                System.out.println("Registration " + remId + " cancelled and removed successfully.");
+            } else {
+                System.out.println("Registration ID not found.");
+            }
         }
     }
 
@@ -453,6 +576,7 @@ public class MainCLI {
         System.out.println("2. Perform Safety Check");
         System.out.println("3. Allocate Equipment to Activity");
         System.out.println("4. Return Equipment");
+        System.out.println("5. Remove Equipment from Inventory");
         System.out.println("0. Back to Main Menu");
         System.out.print("Choice: ");
         String eqChoice = scanner.nextLine().trim();
@@ -547,6 +671,25 @@ public class MainCLI {
                 retEq.setAvailable(true);
                 saveDatabase();
                 System.out.println("Equipment returned to inventory successfully.");
+                break;
+
+            case "5":
+                System.out.print("Enter Equipment ID to remove: ");
+                String remEqId = scanner.nextLine().trim();
+                Equipment remEq = findEquipment(remEqId);
+                if (remEq == null) {
+                    System.out.println("Equipment not found.");
+                    return;
+                }
+                System.out.print("Are you sure you want to remove " + remEq.getName() + " (" + remEq.getEquipmentId() + ")? (y/n): ");
+                if (scanner.nextLine().trim().equalsIgnoreCase("y")) {
+                    if (camp.removeEquipment(remEqId)) {
+                        saveDatabase();
+                        System.out.println("Equipment " + remEq.getName() + " (" + remEqId + ") removed from inventory.");
+                    } else {
+                        System.out.println("Failed to remove equipment.");
+                    }
+                }
                 break;
 
             default:
@@ -646,6 +789,94 @@ public class MainCLI {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid rating number.");
             }
+        }
+    }
+
+    // --- 11. NOTIFICATIONS ---
+    private static void manageNotifications() {
+        System.out.println("\n=== SEND NOTIFICATIONS ===");
+        System.out.println("1. Notify All Participants (" + camp.getParticipants().size() + " registered)");
+        System.out.println("2. Notify All Instructors (" + camp.getInstructors().size() + " registered)");
+        System.out.println("3. Notify Everyone (All Participants & Instructors)");
+        System.out.println("4. Notify a Specific Participant");
+        System.out.println("5. Notify a Specific Instructor");
+        System.out.println("0. Back to Main Menu");
+        System.out.print("Choice: ");
+        String nChoice = scanner.nextLine().trim();
+
+        switch (nChoice) {
+            case "1":
+                if (camp.getParticipants().size() == 0) {
+                    System.out.println("No participants to notify.");
+                    return;
+                }
+                System.out.print("Enter message for all participants: ");
+                String pMsg = scanner.nextLine().trim();
+                if (pMsg.isEmpty()) { System.out.println("Empty message. Notification cancelled."); return; }
+                System.out.println("\n--- Sending to all participants ---");
+                camp.broadcastToParticipants(pMsg);
+                System.out.println("Notification sent to " + camp.getParticipants().size() + " participant(s).");
+                break;
+
+            case "2":
+                if (camp.getInstructors().size() == 0) {
+                    System.out.println("No instructors to notify.");
+                    return;
+                }
+                System.out.print("Enter message for all instructors: ");
+                String iMsg = scanner.nextLine().trim();
+                if (iMsg.isEmpty()) { System.out.println("Empty message. Notification cancelled."); return; }
+                System.out.println("\n--- Sending to all instructors ---");
+                camp.broadcastToInstructors(iMsg);
+                System.out.println("Notification sent to " + camp.getInstructors().size() + " instructor(s).");
+                break;
+
+            case "3":
+                int total = camp.getParticipants().size() + camp.getInstructors().size();
+                if (total == 0) {
+                    System.out.println("No participants or instructors to notify.");
+                    return;
+                }
+                System.out.print("Enter message for everyone: ");
+                String allMsg = scanner.nextLine().trim();
+                if (allMsg.isEmpty()) { System.out.println("Empty message. Notification cancelled."); return; }
+                System.out.println("\n--- Sending to all participants & instructors ---");
+                camp.broadcastToAll(allMsg);
+                System.out.println("Notification sent to " + total + " person(s).");
+                break;
+
+            case "4":
+                System.out.print("Enter Participant ID (e.g. P1): ");
+                String spId = scanner.nextLine().trim();
+                Participant sp = findParticipant(spId);
+                if (sp == null) {
+                    System.out.println("Participant ID not found.");
+                    return;
+                }
+                System.out.print("Enter message for " + sp.getName() + ": ");
+                String spMsg = scanner.nextLine().trim();
+                if (spMsg.isEmpty()) { System.out.println("Empty message. Notification cancelled."); return; }
+                camp.notifyStaff(spMsg, sp);
+                System.out.println("Notification sent to " + sp.getName() + " (" + sp.getId() + ").");
+                break;
+
+            case "5":
+                System.out.print("Enter Instructor ID (e.g. I1): ");
+                String siId = scanner.nextLine().trim();
+                Instructor si = findInstructor(siId);
+                if (si == null) {
+                    System.out.println("Instructor ID not found.");
+                    return;
+                }
+                System.out.print("Enter message for " + si.getName() + ": ");
+                String siMsg = scanner.nextLine().trim();
+                if (siMsg.isEmpty()) { System.out.println("Empty message. Notification cancelled."); return; }
+                camp.notifyStaff(siMsg, si);
+                System.out.println("Notification sent to " + si.getName() + " (" + si.getId() + ").");
+                break;
+
+            default:
+                break;
         }
     }
 

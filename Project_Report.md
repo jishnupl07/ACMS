@@ -469,6 +469,16 @@ Below is the exhaustive documentation for all **31 classes and interfaces** util
   - `public void allocateEquipment(Equipment e, Activity a)`: Checks gear availability and links it to activity.
   - `public void addSafetyCheck(SafetyCheck check)`: Logs checks; updates inspection date for safety equipment; if check fails, sets `equipment.isAvailable(false)` and `condition = "Needs Maintenance"`, then throws `SafetyViolationException`.
   - `public void addFeedback(Feedback feedback)`: Attaches review to camp and activity.
+  - `public boolean removeParticipant(String participantId)`: Cascading removal of participant, registrations, attendance, and feedback.
+  - `public boolean removeActivity(String activityId)`: Cascading removal of activity, registrations, schedule entries, and releases equipment allocations.
+  - `public boolean cancelRegistration(String regId)`: Cancels registration and unlinks participant from activity.
+  - `public boolean removeInstructor(String instructorId)`: Removes instructor and unassigns them from activities.
+  - `public boolean removeLocation(String locationId)`: Removes location and unlinks it from activities.
+  - `public boolean removeEquipment(String equipmentId)`: Removes equipment and cleans up allocations and safety checks.
+  - **Broadcast Operations:**
+    - `broadcastToParticipants(String message)`: Broadcasts to all participants.
+    - `broadcastToInstructors(String message)`: Broadcasts to all instructors.
+    - `broadcastToAll(String message)`: Broadcasts to everyone.
   - **Lambda Query Operations:**
     - `findParticipant()`, `findInstructor()`, `findActivity()`, `findLocation()`, `findEquipment()` using `Optional<T>`.
     - `getAvailableEquipment()`: Filters via `Equipment::isAvailable`.
@@ -476,7 +486,6 @@ Below is the exhaustive documentation for all **31 classes and interfaces** util
     - `getRegistrationsForParticipant(String participantId)`: Filters registrations by participant.
     - `getRegistrationsForActivity(String activityId)`: Filters registrations by activity.
     - `getAverageFeedbackRating()`: Calculates camp-wide rating via streams.
-    - `broadcastToInstructors(String message)`: Functional consumer broadcast.
   - `public void generateReport()`: Generates detailed summary dashboard of camp metrics.
 - **Relationships:**
   - Central composite root owning all `Repository<T>` collections, `CampSchedule`, and `Attendance`.

@@ -57,6 +57,149 @@ public class Camp {
         a.addParticipant(p);
     }
 
+    /**
+     * Cancels/removes a registration by its ID and cleans up participant and activity references.
+     */
+    public boolean cancelRegistration(String regId) {
+        java.util.Optional<Registration> opt = registrations.findFirst(r -> r.getRegistrationId().equalsIgnoreCase(regId));
+        if (!opt.isPresent()) return false;
+        Registration reg = opt.get();
+        if (reg.getParticipant() != null) {
+            reg.getParticipant().removeRegistration(reg);
+        }
+        if (reg.getActivity() != null && reg.getParticipant() != null) {
+            reg.getActivity().removeParticipant(reg.getParticipant());
+        }
+        registrations.remove(reg);
+        return true;
+    }
+
+    /**
+     * Removes a participant and cascades cleanup across registrations, activities, attendance, and feedback.
+     */
+    public boolean removeParticipant(String participantId) {
+        java.util.Optional<Participant> opt = findParticipant(participantId);
+        if (!opt.isPresent()) return false;
+        Participant p = opt.get();
+
+        // 1. Remove registrations involving this participant
+        registrations.removeIf(r -> r.getParticipant() != null && r.getParticipant().getId().equalsIgnoreCase(p.getId()));
+
+        // 2. Remove participant from all activities
+        activities.forEach(a -> a.removeParticipant(p));
+
+        // 3. Remove attendance records
+        attendance.getRecords().removeIf(ar -> ar.getParticipant() != null && ar.getParticipant().getId().equalsIgnoreCase(p.getId()));
+
+        // 4. Remove feedback submitted by participant
+        feedbacks.removeIf(fb -> fb.getParticipant() != null && fb.getParticipant().getId().equalsIgnoreCase(p.getId()));
+
+        // 5. Remove participant from camp repository
+        participants.remove(p);
+        return true;
+    }
+
+    /**
+     * Removes an activity and cascades cleanup across registrations, schedules, equipment, instructors, attendance, and feedback.
+     */
+    public boolean removeActivity(String activityId) {
+        java.util.Optional<Activity> opt = findActivity(activityId);
+        if (!opt.isPresent()) return false;
+        Activity a = opt.get();
+
+        // 1. Remove registrations for this activity and update participant registration lists
+        registrations.getAll().stream()
+                .filter(r -> r.getActivity() != null && r.getActivity().getActivityId().equalsIgnoreCase(a.getActivityId()))
+                .forEach(r -> {
+                    if (r.getParticipant() != null) {
+                        r.getParticipant().removeRegistration(r);
+                    }
+                    registrations.remove(r);
+                });
+
+        // 2. Remove from camp schedule
+        schedule.getEntries().removeIf(se -> se.getActivity() != null && se.getActivity().getActivityId().equalsIgnoreCase(a.getActivityId()));
+
+        // 3. Unassign from instructor
+        if (a.getInstructor() != null) {
+            a.getInstructor().removeActivity(a);
+        }
+
+        // 4. Return any allocated equipment back to available
+        a.getEquipmentAllocations().forEach(ea -> {
+            if (ea.getEquipment() != null) {
+                ea.getEquipment().setAvailable(true);
+            }
+        });
+
+        // 5. Remove safety checks referencing this activity
+        safetyChecks.removeIf(sc -> sc.getActivity() != null && sc.getActivity().getActivityId().equalsIgnoreCase(a.getActivityId()));
+
+        // 6. Remove attendance records
+        attendance.getRecords().removeIf(ar -> ar.getActivity() != null && ar.getActivity().getActivityId().equalsIgnoreCase(a.getActivityId()));
+
+        // 7. Remove feedback
+        feedbacks.removeIf(fb -> fb.getActivity() != null && fb.getActivity().getActivityId().equalsIgnoreCase(a.getActivityId()));
+
+        // 8. Remove activity from camp repository
+        activities.remove(a);
+        return true;
+    }
+
+    /**
+     * Removes an instructor and unassigns them from any activities they lead.
+     */
+    public boolean removeInstructor(String instructorId) {
+        java.util.Optional<Instructor> opt = findInstructor(instructorId);
+        if (!opt.isPresent()) return false;
+        Instructor inst = opt.get();
+
+        // Clear instructor reference on activities
+        activities.forEach(a -> {
+            if (a.getInstructor() != null && a.getInstructor().getId().equalsIgnoreCase(inst.getId())) {
+                a.setInstructor(null);
+            }
+        });
+
+        instructors.remove(inst);
+        return true;
+    }
+
+    /**
+     * Removes a location and unsets location reference on activities.
+     */
+    public boolean removeLocation(String locationId) {
+        java.util.Optional<Location> opt = findLocation(locationId);
+        if (!opt.isPresent()) return false;
+        Location loc = opt.get();
+
+        activities.forEach(a -> {
+            if (a.getLocation() != null && a.getLocation().getLocationId().equalsIgnoreCase(loc.getLocationId())) {
+                a.setLocation(null);
+            }
+        });
+
+        locations.remove(loc);
+        return true;
+    }
+
+    /**
+     * Removes equipment from inventory and cleans up allocations and safety checks.
+     */
+    public boolean removeEquipment(String equipmentId) {
+        java.util.Optional<Equipment> opt = findEquipment(equipmentId);
+        if (!opt.isPresent()) return false;
+        Equipment eq = opt.get();
+
+        activities.forEach(a ->
+            a.getEquipmentAllocations().removeIf(ea -> ea.getEquipment() != null && ea.getEquipment().getEquipmentId().equalsIgnoreCase(eq.getEquipmentId()))
+        );
+
+        safetyChecks.removeIf(sc -> sc.getEquipment() != null && sc.getEquipment().getEquipmentId().equalsIgnoreCase(eq.getEquipmentId()));
+        equipmentList.remove(eq);
+        return true;
+    }
+
     public void scheduleActivity(Activity a, LocalDateTime time) throws CampException {
         a.updateSchedule(time);
         ScheduleEntry entry = new ScheduleEntry("SCH" + (schedule.getEntries().size() + 1), a, time);
@@ -157,6 +300,17 @@ public class Camp {
     /** Broadcasts message to all instructors using a lambda consumer. */
     public void broadcastToInstructors(String message) {
         instructors.forEach(i -> i.sendNotification(message));
+    }
+
+    /** Broadcasts message to all participants using a lambda consumer. */
+    public void broadcastToParticipants(String message) {
+        participants.forEach(p -> p.sendNotification(message));
+    }
+
+    /** Broadcasts message to all participants and instructors using lambda consumers. */
+    public void broadcastToAll(String message) {
+        broadcastToParticipants(message);
+        broadcastToInstructors(message);
     }
     
     public void generateReport() {

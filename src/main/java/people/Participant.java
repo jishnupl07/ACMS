@@ -1,10 +1,11 @@
 package people;
 
 import management.Registration;
+import management.Notifiable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Participant extends Person {
+public class Participant extends Person implements Notifiable {
     private String emergencyContact;
     private String medicalNotes;
     private String skillLevel;
@@ -44,5 +45,9 @@ public class Participant extends Person {
     public String getEmergencyContact() { return emergencyContact; }
     public String getMedicalNotes() { return medicalNotes; }
     public String getSkillLevel() { return skillLevel; }
-}
 
+    @Override
+    public void sendNotification(String message) {
+        System.out.println("Notification for Participant " + getName() + " (" + getId() + "): " + message);
+    }
+}
