@@ -1,2 +1,4 @@
 participantId,activityId,date,isPresent
 P1,A1,2026-10-11,true
+P4,A4,2026-10-12,true
+P1,A1,2026-10-12,true

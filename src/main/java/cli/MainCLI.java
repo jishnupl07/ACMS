@@ -626,6 +626,7 @@ public class MainCLI {
                     camp.addSafetyCheck(check);
                     saveDatabase();
                     System.out.println("Safety check recorded. Status: PASSED");
+                    System.out.println("Equipment " + eqToCheck.getName() + " (" + eqToCheck.getEquipmentId() + ") marked as AVAILABLE (Condition: Good).");
                 } catch (SafetyViolationException e) {
                     saveDatabase();
                     System.out.println("\n[CAMP ERROR] " + e.getMessage());

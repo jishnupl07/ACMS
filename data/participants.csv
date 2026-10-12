@@ -1,6 +1,4 @@
 id,name,age,contactNumber,emergencyContact,medicalNotes,skillLevel
 P1,Bob,20,555-0201,Mom: 555-0000,None,Beginner
-P2,Charlie,22,555-0202,Dad: 555-0001,None,Intermediate
-P3,Diana,19,555-0203,Sister: 555-0002,Asthma,Advanced
-P4,Narayana,79,1234567890,1234567889,Fit,Babie
-P5,Jishnu,29,123456789,13435678,Heart Failure,NOOBDE
+P3,Jude,25,1234567890,2345678901,None,Beginner
+P4,Narendran,56,1234567890,0987654321,BP,Intermediate

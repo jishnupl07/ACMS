@@ -467,7 +467,7 @@ Below is the exhaustive documentation for all **31 classes and interfaces** util
   - `public void registerParticipant(Participant p, Activity a)`: Core registration workflow enforcing capacity and duplicate registration rules.
   - `public void scheduleActivity(Activity a, LocalDateTime time)`: Attaches activity to schedule.
   - `public void allocateEquipment(Equipment e, Activity a)`: Checks gear availability and links it to activity.
-  - `public void addSafetyCheck(SafetyCheck check)`: Logs checks; updates inspection date for safety equipment; if check fails, sets `equipment.isAvailable(false)` and `condition = "Needs Maintenance"`, then throws `SafetyViolationException`.
+  - `public void addSafetyCheck(SafetyCheck check)`: Logs checks; updates inspection date for safety equipment; if check passes, sets `equipment.setCondition("Good")` and `equipment.setAvailable(true)`; if check fails, sets `equipment.setAvailable(false)` and `condition = "Needs Maintenance"`, then throws `SafetyViolationException`.
   - `public void addFeedback(Feedback feedback)`: Attaches review to camp and activity.
   - `public boolean removeParticipant(String participantId)`: Cascading removal of participant, registrations, attendance, and feedback.
   - `public boolean removeActivity(String activityId)`: Cascading removal of activity, registrations, schedule entries, and releases equipment allocations.

@@ -1,2 +1,8 @@
 checkId,passed,remarks,equipmentId,activityId,checkDate
 SC1,false,Broken,E1,,2026-10-12
+SC2,true,Good,E1,,2026-10-12
+SC3,true,Fixed and certified,E1,,2026-10-12
+SC4,false,Broken,E2,,2026-10-12
+SC5,true,Good,E2,,2026-10-12
+SC6,false,Broken,E1,,2026-10-12
+SC7,true,Good,E1,,2026-10-12
