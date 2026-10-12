@@ -1,0 +1,646 @@
+PS C:\NarenClg\Sem 3\OOP\Project\ACMS> .\run.ps1
+Cleaning previous build...
+  Removed '.\out'
+  Created fresh '.\out'
+Collecting source files...
+  Found 31 .java files
+Compiling...
+Build successful!
+
+Starting ACMS...
+=============================================
+=================================================
+   Welcome to Adventure Camp Management System   
+=================================================
+Data directory: data
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 1
+
+==========================================
+              CAMP REPORT                 
+==========================================
+Camp ID: C1 | Name: Summer Adventure Camp
+Dates: 2026-10-10 to 2026-10-17
+Capacity: 100 | Status: Active
+------------------------------------------
+Total Locations: 4
+Total Instructors: 3
+Total Participants: 3
+Total Equipment: 4 (2 available)
+Total Activities: 4
+Scheduled Entries: 2
+Total Registrations: 3
+Total Safety Checks: 6 (3 passed)
+Attendance Records: 2
+Total Feedbacks: 2 (Avg Rating: 5.0/5)
+==========================================
+
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 2
+
+=== PARTICIPANTS LIST ===
+ID: P1   | Name: Bob          | Age: 20 | Contact: 555-0201   | Emergency: Mom: 555-0000  | Skill: Beginner     | MedNotes: None
+ID: P2   | Name: Charlie      | Age: 22 | Contact: 555-0202   | Emergency: Dad: 555-0001  | Skill: Intermediate | MedNotes: None
+ID: P4   | Name: Jude         | Age: 25 | Contact: 1234567890 | Emergency: 2345678901     | Skill: Beginner     | MedNotes: None
+
+Actions:
+1. Add New Participant
+2. Remove Participant
+0. Back to Main Menu
+Choice: 1
+Name: Narendran
+Age: 56
+Contact Number: 1234567890
+Emergency Contact: 0987654321
+Medical Notes: BP
+Skill Level (Beginner/Intermediate/Advanced): Intermediate
+All changes saved to CSV files in: data/
+Participant added successfully with ID: P4
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 2
+
+=== PARTICIPANTS LIST ===
+ID: P1   | Name: Bob          | Age: 20 | Contact: 555-0201   | Emergency: Mom: 555-0000  | Skill: Beginner     | MedNotes: None
+ID: P2   | Name: Charlie      | Age: 22 | Contact: 555-0202   | Emergency: Dad: 555-0001  | Skill: Intermediate | MedNotes: None
+ID: P4   | Name: Jude         | Age: 25 | Contact: 1234567890 | Emergency: 2345678901     | Skill: Beginner     | MedNotes: None
+ID: P4   | Name: Narendran    | Age: 56 | Contact: 1234567890 | Emergency: 0987654321     | Skill: Intermediate | MedNotes: BP
+
+Actions:
+1. Add New Participant
+2. Remove Participant
+0. Back to Main Menu
+Choice: 2
+Enter Participant ID to remove (e.g. P1): P2
+Are you sure you want to remove Charlie (P2)? (y/n): y
+All changes saved to CSV files in: data/
+Participant Charlie (P2) and all associated registrations were removed successfully.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 2
+
+=== PARTICIPANTS LIST ===
+ID: P1   | Name: Bob          | Age: 20 | Contact: 555-0201   | Emergency: Mom: 555-0000  | Skill: Beginner     | MedNotes: None
+ID: P4   | Name: Jude         | Age: 25 | Contact: 1234567890 | Emergency: 2345678901     | Skill: Beginner     | MedNotes: None
+ID: P4   | Name: Narendran    | Age: 56 | Contact: 1234567890 | Emergency: 0987654321     | Skill: Intermediate | MedNotes: BP
+
+Actions:
+1. Add New Participant
+2. Remove Participant
+0. Back to Main Menu
+Choice: 0
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 3
+
+=== INSTRUCTORS LIST ===
+ID: I1   | Name: Alice        | Age: 30 | Contact: 555-0101   | Specialization: Water Sports     | Certifications: Lifeguard, Kayak Instructor
+ID: I2   | Name: Dave         | Age: 35 | Contact: 555-0102   | Specialization: Climbing & Ropes | Certifications: Lead Climbing, Wilderness First Aid
+ID: I3   | Name: Sam          | Age: 33 | Contact: 3456789012 | Specialization: Bungee Jumping   | Certifications: Bungee Jumping
+
+Actions:
+1. Add New Instructor
+2. Remove Instructor
+0. Back to Main Menu
+Choice: 1
+Name: Haswanth
+Age: 49
+Contact Number: 1234567890
+Specialization: Trekking
+Certifications (comma separated): Advanced Trekker
+All changes saved to CSV files in: data/
+Instructor added successfully with ID: I4
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 3
+
+=== INSTRUCTORS LIST ===
+ID: I1   | Name: Alice        | Age: 30 | Contact: 555-0101   | Specialization: Water Sports     | Certifications: Lifeguard, Kayak Instructor
+ID: I2   | Name: Dave         | Age: 35 | Contact: 555-0102   | Specialization: Climbing & Ropes | Certifications: Lead Climbing, Wilderness First Aid
+ID: I3   | Name: Sam          | Age: 33 | Contact: 3456789012 | Specialization: Bungee Jumping   | Certifications: Bungee Jumping
+ID: I4   | Name: Haswanth     | Age: 49 | Contact: 1234567890 | Specialization: Trekking         | Certifications: Advanced Trekker
+
+Actions:
+1. Add New Instructor
+2. Remove Instructor
+0. Back to Main Menu
+Choice: 2
+Enter Instructor ID to remove (e.g. I1): I2
+Are you sure you want to remove Dave (I2)? (y/n): y
+All changes saved to CSV files in: data/
+Instructor Dave (I2) removed successfully.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 3
+
+=== INSTRUCTORS LIST ===
+ID: I1   | Name: Alice        | Age: 30 | Contact: 555-0101   | Specialization: Water Sports     | Certifications: Lifeguard, Kayak Instructor
+ID: I3   | Name: Sam          | Age: 33 | Contact: 3456789012 | Specialization: Bungee Jumping   | Certifications: Bungee Jumping
+ID: I4   | Name: Haswanth     | Age: 49 | Contact: 1234567890 | Specialization: Trekking         | Certifications: Advanced Trekker
+
+Actions:
+1. Add New Instructor
+2. Remove Instructor
+0. Back to Main Menu
+Choice: 0
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 4
+
+=== LOCATIONS LIST ===
+ID: L1   | Name: River Zone       | Address: North Woods      | Terrain: Water        | Capacity: 20
+ID: L2   | Name: Climbing Wall    | Address: Base Camp        | Terrain: Mountain     | Capacity: 10
+ID: L3   | Name: Camp Ground      | Address: Central Field    | Terrain: Grassland    | Capacity: 50
+ID: L4   | Name: Meadows          | Address: Hill Zone        | Terrain: Mountain     | Capacity: 50
+
+Actions:
+1. Add New Location
+2. Remove Location
+0. Back to Main Menu
+Choice: 1
+Location Name: SSN  
+Address/Zone: Clock Tower
+Terrain Type (Water/Mountain/Grassland/Forest): Grassland
+Capacity: 50
+All changes saved to CSV files in: data/
+Location added successfully with ID: L5
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 4
+
+=== LOCATIONS LIST ===
+ID: L1   | Name: River Zone       | Address: North Woods      | Terrain: Water        | Capacity: 20
+ID: L2   | Name: Climbing Wall    | Address: Base Camp        | Terrain: Mountain     | Capacity: 10
+ID: L3   | Name: Camp Ground      | Address: Central Field    | Terrain: Grassland    | Capacity: 50
+ID: L4   | Name: Meadows          | Address: Hill Zone        | Terrain: Mountain     | Capacity: 50
+ID: L5   | Name: SSN              | Address: Clock Tower      | Terrain: Grassland    | Capacity: 50
+
+Actions:
+1. Add New Location
+2. Remove Location
+0. Back to Main Menu
+Choice: 2
+Enter Location ID to remove (e.g. L1): L5
+Are you sure you want to remove SSN (L5)? (y/n): y
+All changes saved to CSV files in: data/
+Location SSN (L5) removed successfully.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 5
+
+=== ACTIVITIES LIST ===
+ID: A1   | Type: WaterActivity        | Title: Kayaking Basics      | Duration: 120 min | Max: 10 | Loc: River Zone   | Inst: Alice      | Enrolled: 1
+ID: A2   | Type: AdventureActivity    | Title: Rock Climbing        | Duration:  90 min | Max:  8 | Loc: Climbing Wall | Inst: None       | Enrolled: 0
+ID: A3   | Type: TeamBuildingActivity | Title: Rope Course Challenge | Duration:  60 min | Max: 15 | Loc: Camp Ground  | Inst: Alice      | Enrolled: 0
+ID: A4   | Type: AdventureActivity    | Title: Trekking             | Duration: 120 min | Max: 40 | Loc: Meadows      | Inst: None       | Enrolled: 1
+
+Actions:
+1. Add New Activity
+2. Remove Activity
+0. Back to Main Menu
+Choice: 1
+Select Activity Type:
+1. Adventure Activity (Rock Climbing, Trekking, etc.)
+2. Water Activity (Kayaking, Rafting, Swimming)
+3. Team Building Activity (Ropes, Puzzles, Relays)
+Choice (1-3): 1
+Title: Hill Climb Racing
+Description: climb hills and rac
+Duration (minutes): 20
+Max Participants: 7
+Enter Location ID: L4
+Enter Instructor ID: I1
+Terrain Type: Grasslands
+Risk Level (Low/Moderate/High): Moderate 
+All changes saved to CSV files in: data/
+Activity created successfully with ID: A5
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 6
+
+=== CAMP SCHEDULE ===
+Entry ID: SCH1  | Date: 2026-10-15 | Start: 2026-10-15T10:00 | Activity: Kayaking Basics
+Entry ID: SCH2  | Date: 2026-10-15 | Start: 2026-10-15T12:00 | Activity: Trekking
+
+Actions:
+1. Schedule an Activity
+2. Remove Schedule Entry
+0. Back to Main Menu
+Choice: 1
+Enter Activity ID: A5
+Enter Date and Start Time (format: YYYY-MM-DD HH:mm, e.g. 2026-10-05 14:00): 2026-10-15 15:00
+All changes saved to CSV files in: data/
+Activity scheduled successfully for 2026-10-15 15:00
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 6
+
+=== CAMP SCHEDULE ===
+Entry ID: SCH1  | Date: 2026-10-15 | Start: 2026-10-15T10:00 | Activity: Kayaking Basics
+Entry ID: SCH2  | Date: 2026-10-15 | Start: 2026-10-15T12:00 | Activity: Trekking
+Entry ID: SCH3  | Date: 2026-10-15 | Start: 2026-10-15T15:00 | Activity: Hill Climb Racing
+
+Actions:
+1. Schedule an Activity
+2. Remove Schedule Entry
+0. Back to Main Menu
+Choice: 0
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 7
+
+=== ACTIVITY REGISTRATIONS ===
+Reg ID: REG1  | Participant: Bob          (P1  ) | Activity: Kayaking Basics        (A1  ) | Date: 2026-10-11 | Status: Confirmed
+Reg ID: REG4  | Participant: Jude         (P4  ) | Activity: Trekking               (A4  ) | Date: 2026-10-12 | Status: Confirmed
+
+Actions:
+1. Register Participant for Activity
+2. View Registrations by Participant
+3. View Registrations by Activity
+4. Cancel / Remove Registration
+0. Back to Main Menu
+Choice: 1
+
+--- Register Participant ---
+Enter Participant ID (e.g. P1): P1
+Enter Activity ID (e.g. A1): A1
+
+[CAMP ERROR] Participant already registered for this activity.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 8
+
+=== EQUIPMENT INVENTORY ===
+ID: E1   | Name: Life Jacket        | Condition: Needs Maintenance | Available: false | Safety Rating: A, Last Insp: 2026-10-12
+ID: E2   | Name: Climbing Helmet    | Condition: Good   | Available: false | Safety Rating: A, Last Insp: 2026-10-12
+ID: E3   | Name: Kayak Paddle       | Condition: Good   | Available: true  | Sport: Kayaking
+ID: E4   | Name: Climbing Harness   | Condition: Good   | Available: true  | Sport: Climbing
+
+Actions:
+1. Add New Equipment
+2. Perform Safety Check
+3. Allocate Equipment to Activity
+4. Return Equipment
+5. Remove Equipment from Inventory
+0. Back to Main Menu
+Choice: 3
+Enter Equipment ID: E1
+Enter Activity ID: A4
+
+[CAMP ERROR] Equipment Life Jacket is currently unavailable.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): A48
+Invalid option. Please enter a number between 0 and 11.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 8
+
+=== EQUIPMENT INVENTORY ===
+ID: E1   | Name: Life Jacket        | Condition: Needs Maintenance | Available: false | Safety Rating: A, Last Insp: 2026-10-12
+ID: E2   | Name: Climbing Helmet    | Condition: Good   | Available: false | Safety Rating: A, Last Insp: 2026-10-12
+ID: E3   | Name: Kayak Paddle       | Condition: Good   | Available: true  | Sport: Kayaking
+ID: E4   | Name: Climbing Harness   | Condition: Good   | Available: true  | Sport: Climbing
+
+Actions:
+1. Add New Equipment
+2. Perform Safety Check
+3. Allocate Equipment to Activity
+4. Return Equipment
+5. Remove Equipment from Inventory
+0. Back to Main Menu
+Choice: 2
+Enter Equipment ID: E1
+Did the safety check pass? (true/false): true
+Remarks: Good
+All changes saved to CSV files in: data/
+Safety check recorded. Status: PASSED
+Equipment Life Jacket (E1) marked as AVAILABLE (Condition: Good).
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 8
+
+=== EQUIPMENT INVENTORY ===
+ID: E1   | Name: Life Jacket        | Condition: Good   | Available: true  | Safety Rating: A, Last Insp: 2026-10-12
+ID: E2   | Name: Climbing Helmet    | Condition: Good   | Available: false | Safety Rating: A, Last Insp: 2026-10-12
+ID: E3   | Name: Kayak Paddle       | Condition: Good   | Available: true  | Sport: Kayaking
+ID: E4   | Name: Climbing Harness   | Condition: Good   | Available: true  | Sport: Climbing
+
+Actions:
+1. Add New Equipment
+2. Perform Safety Check
+3. Allocate Equipment to Activity
+4. Return Equipment
+5. Remove Equipment from Inventory
+0. Back to Main Menu
+Choice: 0
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 9
+
+=== ATTENDANCE RECORDS ===
+Participant: Bob          | Activity: Kayaking Basics      | Date: 2026-10-11 | Present: YES
+Participant: Jude         | Activity: Trekking             | Date: 2026-10-12 | Present: YES
+
+Mark attendance for an activity? (y/n): y
+Enter Activity ID: A1
+
+Marking attendance for Kayaking Basics:
+Is Bob (P1) present? (y/n): y
+All changes saved to CSV files in: data/
+Attendance successfully saved.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 10
+
+=== FEEDBACK & REVIEWS ===
+ID: FB1  | Rating: 5/5 | Participant: Bob        | Activity: Kayaking Basics  | Date: 2026-10-11 | Comments: Great trip!
+ID: FB2  | Rating: 5/5 | Participant: Jude       | Activity: Trekking         | Date: 2026-10-12 | Comments: Good
+
+Submit new feedback? (y/n): y
+Enter Participant ID: P4
+Enter Activity ID: A4
+Enter Rating (1-5): 4
+Comments: Good
+All changes saved to CSV files in: data/
+Thank you! Feedback submitted and saved.
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 11
+
+=== SEND NOTIFICATIONS ===
+1. Notify All Participants (3 registered)
+2. Notify All Instructors (3 registered)
+3. Notify Everyone (All Participants & Instructors)
+4. Notify a Specific Participant
+5. Notify a Specific Instructor
+0. Back to Main Menu
+Choice: 3
+Enter message for everyone: Tomorrow Lunch at 12:30 pm
+
+--- Sending to all participants & instructors ---
+Notification for Participant Bob (P1): Tomorrow Lunch at 12:30 pm
+Notification for Participant Jude (P4): Tomorrow Lunch at 12:30 pm
+Notification for Participant Narendran (P4): Tomorrow Lunch at 12:30 pm
+Notification for Instructor Alice: Tomorrow Lunch at 12:30 pm
+Notification for Instructor Sam: Tomorrow Lunch at 12:30 pm
+Notification for Instructor Haswanth: Tomorrow Lunch at 12:30 pm
+Notification sent to 6 person(s).
+
+----------------- MAIN MENU -----------------
+1. Dashboard / Summary Report
+2. Manage Participants
+3. Manage Instructors
+4. Manage Locations
+5. Manage Activities
+6. Schedule Activity
+7. Manage Registrations
+8. Manage Equipment & Safety
+9. Attendance Management
+10. Feedback Management
+11. Send Notifications
+0. Save & Exit
+Select an option (0-11): 0
+All changes saved to CSV files in: data/
