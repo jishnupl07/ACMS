@@ -498,9 +498,15 @@ public class MainCLI {
 
                 String scId = "SC" + (camp.getSafetyChecks().size() + 1);
                 SafetyCheck check = new SafetyCheck(scId, passed, remarks, eqToCheck, null);
-                camp.addSafetyCheck(check);
-                saveDatabase();
-                System.out.println("Safety check recorded. Status: " + (passed ? "PASSED" : "FAILED"));
+                try {
+                    camp.addSafetyCheck(check);
+                    saveDatabase();
+                    System.out.println("Safety check recorded. Status: PASSED");
+                } catch (SafetyViolationException e) {
+                    saveDatabase();
+                    System.out.println("\n[CAMP ERROR] " + e.getMessage());
+                    System.out.println("Equipment " + eqToCheck.getName() + " (" + eqToCheck.getEquipmentId() + ") has failed inspection and is now marked UNAVAILABLE (Condition: Needs Maintenance).");
+                }
                 break;
 
             case "3":

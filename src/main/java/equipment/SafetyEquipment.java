@@ -17,5 +17,7 @@ public class SafetyEquipment extends Equipment {
     }
 
     public LocalDate getLastInspectionDate() { return lastInspectionDate; }
+    public void setLastInspectionDate(LocalDate lastInspectionDate) { this.lastInspectionDate = lastInspectionDate; }
     public String getSafetyRating() { return safetyRating; }
+    public void setSafetyRating(String safetyRating) { this.safetyRating = safetyRating; }
 }

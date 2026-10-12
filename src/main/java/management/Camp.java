@@ -73,6 +73,15 @@ public class Camp {
 
     public void addSafetyCheck(SafetyCheck check) throws SafetyViolationException {
         safetyChecks.add(check);
+        if (check.getEquipment() != null) {
+            if (check.getEquipment() instanceof equipment.SafetyEquipment) {
+                ((equipment.SafetyEquipment) check.getEquipment()).setLastInspectionDate(check.getCheckDate());
+            }
+            if (!check.isPassed()) {
+                check.getEquipment().setAvailable(false);
+                check.getEquipment().setCondition("Needs Maintenance");
+            }
+        }
         if(!check.isPassed()) {
             throw new SafetyViolationException("Safety check failed: " + check.getRemarks());
         }

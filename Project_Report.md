@@ -416,11 +416,11 @@ Below is the exhaustive documentation for all **31 classes and interfaces** util
 - **Key Methods:**
   - Parameterized constructor setting inspection metadata.
   - `public void checkCondition()`: Overridden inspection logger including last inspection date.
-  - `getLastInspectionDate()`, `getSafetyRating()`: Accessors.
+  - `getLastInspectionDate()`, `setLastInspectionDate()`, `getSafetyRating()`, `setSafetyRating()`: Accessors and mutators.
 - **Relationships:**
   - Subclass of `Equipment`.
 - **Where & How Used:**
-  - Handled in `MainCLI.manageEquipment()` when adding or checking safety inventory.
+  - Handled in `MainCLI.manageEquipment()` when adding or checking safety inventory; inspection date is automatically refreshed during safety checks.
 
 ---
 
@@ -467,7 +467,7 @@ Below is the exhaustive documentation for all **31 classes and interfaces** util
   - `public void registerParticipant(Participant p, Activity a)`: Core registration workflow enforcing capacity and duplicate registration rules.
   - `public void scheduleActivity(Activity a, LocalDateTime time)`: Attaches activity to schedule.
   - `public void allocateEquipment(Equipment e, Activity a)`: Checks gear availability and links it to activity.
-  - `public void addSafetyCheck(SafetyCheck check)`: Logs checks; throws `SafetyViolationException` on check failure.
+  - `public void addSafetyCheck(SafetyCheck check)`: Logs checks; updates inspection date for safety equipment; if check fails, sets `equipment.isAvailable(false)` and `condition = "Needs Maintenance"`, then throws `SafetyViolationException`.
   - `public void addFeedback(Feedback feedback)`: Attaches review to camp and activity.
   - **Lambda Query Operations:**
     - `findParticipant()`, `findInstructor()`, `findActivity()`, `findLocation()`, `findEquipment()` using `Optional<T>`.
