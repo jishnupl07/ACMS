@@ -57,6 +57,15 @@ public class Camp {
         a.addParticipant(p);
     }
 
+    /** Overloaded registerParticipant: registers participant and activity using their string IDs. */
+    public void registerParticipant(String participantId, String activityId) throws RegistrationException, CapacityExceededException, CampException {
+        Participant p = findParticipant(participantId)
+                .orElseThrow(() -> new RegistrationException("Participant not found: " + participantId));
+        Activity a = findActivity(activityId)
+                .orElseThrow(() -> new RegistrationException("Activity not found: " + activityId));
+        registerParticipant(p, a);
+    }
+
     /**
      * Cancels/removes a registration by its ID and cleans up participant and activity references.
      */
@@ -206,12 +215,28 @@ public class Camp {
         schedule.addEntry(entry);
     }
 
+    /** Overloaded scheduleActivity: schedules activity using its string ID and start time. */
+    public void scheduleActivity(String activityId, LocalDateTime time) throws CampException {
+        Activity a = findActivity(activityId)
+                .orElseThrow(() -> new CampException("Activity not found: " + activityId));
+        scheduleActivity(a, time);
+    }
+
     public void allocateEquipment(Equipment e, Activity a) throws EquipmentUnavailableException {
         if(!e.isAvailable()) {
             throw new EquipmentUnavailableException("Equipment " + e.getName() + " is currently unavailable.");
         }
         EquipmentAllocation alloc = new EquipmentAllocation("EA" + (a.getEquipmentAllocations().size() + 1), e, a);
         a.addEquipmentAllocation(alloc);
+    }
+
+    /** Overloaded allocateEquipment: allocates equipment to an activity using entity string IDs. */
+    public void allocateEquipment(String equipmentId, String activityId) throws EquipmentUnavailableException, CampException {
+        Equipment eq = findEquipment(equipmentId)
+                .orElseThrow(() -> new EquipmentUnavailableException("Equipment not found: " + equipmentId));
+        Activity act = findActivity(activityId)
+                .orElseThrow(() -> new CampException("Activity not found: " + activityId));
+        allocateEquipment(eq, act);
     }
 
     public void addSafetyCheck(SafetyCheck check) throws SafetyViolationException {
@@ -239,6 +264,11 @@ public class Camp {
         if (feedback.getActivity() != null) {
             feedback.getActivity().addFeedback(feedback);
         }
+    }
+
+    /** Overloaded addFeedback: creates and adds a Feedback instance directly from arguments. */
+    public void addFeedback(String feedbackId, int rating, String comments, Participant p, Activity a) {
+        addFeedback(new Feedback(feedbackId, rating, comments, p, a));
     }
 
     // --- Lambda & Functional Lookups and Queries ---
@@ -315,6 +345,12 @@ public class Camp {
     public void broadcastToAll(String message) {
         broadcastToParticipants(message);
         broadcastToInstructors(message);
+    }
+
+    /** Overloaded broadcastToAll: broadcasts with a specified urgency/priority tag. */
+    public void broadcastToAll(String message, String urgencyLevel) {
+        String tag = (urgencyLevel != null && !urgencyLevel.isEmpty()) ? "[" + urgencyLevel.toUpperCase() + "] " : "";
+        broadcastToAll(tag + message);
     }
     
     public void generateReport() {

@@ -11,6 +11,15 @@ public class SafetyEquipment extends Equipment {
         this.safetyRating = safetyRating;
     }
 
+    // --- Normal Method Overriding (overriding concrete method from superclass Equipment) ---
+
+    @Override
+    public String getStatusSummary() {
+        return super.getStatusSummary() + String.format(" | Rating: %s | Last Inspected: %s", safetyRating, lastInspectionDate);
+    }
+
+    // --- Abstract Method Implementation ---
+
     @Override
     public void checkCondition() {
         System.out.println("Checking safety equipment " + getName() + ". Last inspection: " + lastInspectionDate);

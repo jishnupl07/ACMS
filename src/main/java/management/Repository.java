@@ -9,14 +9,57 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class Repository<T> {
+/**
+ * Generic repository demonstrating bounded type parameters.
+ * T is bounded by CampEntity (T extends CampEntity).
+ * This ensures that every element stored in this repository possesses CampEntity features (id, name, etc.).
+ */
+public class Repository<T extends CampEntity> {
     private List<T> items = new ArrayList<>();
-    
-    public void add(T item) { items.add(item); }
-    public void remove(T item) { items.remove(item); }
-    public T get(int index) { return items.get(index); }
+
+    // --- Method Overloading: add ---
+
+    /** Adds a single entity to the repository. */
+    public void add(T item) { 
+        items.add(item); 
+    }
+
+    /** Overloaded add: adds a list of entities to the repository. */
+    public void add(List<T> newItems) {
+        items.addAll(newItems);
+    }
+
+    // --- Method Overloading: remove ---
+
+    /** Removes a specific entity from the repository. */
+    public void remove(T item) { 
+        items.remove(item); 
+    }
+
+    /** Overloaded remove: removes an entity by its string ID, enabled by bounded type CampEntity. */
+    public boolean remove(String id) {
+        return items.removeIf(item -> item.getId() != null && item.getId().equalsIgnoreCase(id));
+    }
+
+    // --- Method Overloading: get ---
+
+    /** Gets an entity by list index. */
+    public T get(int index) { 
+        return items.get(index); 
+    }
+
+    /** Overloaded get: retrieves an entity by its CampEntity ID, enabled by bounded type. */
+    public Optional<T> get(String id) {
+        return findById(id);
+    }
+
     public List<T> getAll() { return new ArrayList<>(items); }
     public int size() { return items.size(); }
+
+    /** Bounded type lookup: directly accesses item.getId() from CampEntity. */
+    public Optional<T> findById(String id) {
+        return findFirst(item -> item.getId() != null && item.getId().equalsIgnoreCase(id));
+    }
 
     // --- Lambda & Functional Operations ---
 
@@ -65,4 +108,3 @@ public class Repository<T> {
         return items.stream().filter(predicate).count();
     }
 }
-

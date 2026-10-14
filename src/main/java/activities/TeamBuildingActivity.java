@@ -15,9 +15,19 @@ public class TeamBuildingActivity extends Activity {
         this.teamSize = teamSize;
     }
 
+    // --- Normal Method Overriding (overriding concrete method from superclass Activity) ---
+
+    @Override
+    public String getActivityDetails() {
+        return super.getActivityDetails() + String.format(" [Team Size: %d]", teamSize);
+    }
+
+    // --- Abstract Method Implementation ---
+
     @Override
     public void conductActivity() {
         System.out.println("Conducting Team Building Activity: " + getTitle() + " with teams of " + teamSize);
     }
+
     public int getTeamSize() { return teamSize; }
 }

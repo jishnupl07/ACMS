@@ -1,5 +1,6 @@
 package management;
 
+import java.time.LocalDate;
 import java.util.List;
 import activities.Activity;
 import people.Participant;
@@ -7,8 +8,20 @@ import people.Participant;
 public class Attendance {
     private Repository<AttendanceRecord> records = new Repository<>();
 
+    // --- Method Overloading: recordAttendance ---
+
     public void recordAttendance(AttendanceRecord record) {
         records.add(record);
+    }
+
+    /** Overloaded recordAttendance: creates and adds an AttendanceRecord from participant and activity with specific date. */
+    public void recordAttendance(Participant participant, Activity activity, LocalDate date, boolean isPresent) {
+        records.add(new AttendanceRecord(participant, activity, date, isPresent));
+    }
+
+    /** Overloaded recordAttendance: records attendance defaulting to current date. */
+    public void recordAttendance(Participant participant, Activity activity, boolean isPresent) {
+        recordAttendance(participant, activity, LocalDate.now(), isPresent);
     }
     
     /** Returns all attendance records for a given activity using a lambda predicate. */
@@ -35,4 +48,3 @@ public class Attendance {
         return records;
     }
 }
-

@@ -18,10 +18,20 @@ public class AdventureActivity extends Activity {
         this.riskLevel = risk;
     }
 
+    // --- Normal Method Overriding (overriding concrete method from superclass Activity) ---
+
+    @Override
+    public String getActivityDetails() {
+        return super.getActivityDetails() + String.format(" [Terrain: %s, Risk: %s]", terrainType, riskLevel);
+    }
+
+    // --- Abstract Method Implementation ---
+
     @Override
     public void conductActivity() {
         System.out.println("Conducting Adventure Activity: " + getTitle() + " at Risk Level: " + riskLevel);
     }
+
     public String getTerrainType() { return terrainType; }
     public String getRiskLevel() { return riskLevel; }
 }

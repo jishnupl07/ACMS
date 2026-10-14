@@ -1,5 +1,6 @@
 package activities;
 
+import management.CampEntity;
 import management.Schedulable;
 import management.Location;
 import management.Feedback;
@@ -10,9 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Activity implements Schedulable {
-    private String activityId;
-    private String title;
+public abstract class Activity extends CampEntity implements Schedulable {
     private String description;
     private int durationMinutes;
     private int maxParticipants;
@@ -29,8 +28,7 @@ public abstract class Activity implements Schedulable {
     }
 
     public Activity(String activityId, String title, String description, int durationMinutes, int maxParticipants, Location location, Instructor instructor) {
-        this.activityId = activityId;
-        this.title = title;
+        super(activityId, title);
         this.description = description;
         this.durationMinutes = durationMinutes;
         this.maxParticipants = maxParticipants;
@@ -41,8 +39,8 @@ public abstract class Activity implements Schedulable {
         }
     }
 
-    public String getActivityId() { return activityId; }
-    public String getTitle() { return title; }
+    public String getActivityId() { return getId(); }
+    public String getTitle() { return getName(); }
     public String getDescription() { return description; }
     public int getDurationMinutes() { return durationMinutes; }
     public int getMaxParticipants() { return maxParticipants; }
@@ -54,14 +52,37 @@ public abstract class Activity implements Schedulable {
     public List<Feedback> getFeedbackList() { return feedbackList; }
     public List<EquipmentAllocation> getEquipmentAllocations() { return equipmentAllocations; }
 
+    // --- Method Overloading: addParticipant ---
+
     public void addParticipant(Participant p) { 
         if (!participants.contains(p)) {
             participants.add(p); 
         }
     }
+
+    /** Overloaded addParticipant: adds a list of participants at once. */
+    public void addParticipant(List<Participant> newParticipants) {
+        for (Participant p : newParticipants) {
+            addParticipant(p);
+        }
+    }
+
     public void removeParticipant(Participant p) { participants.remove(p); }
     public void addFeedback(Feedback f) { feedbackList.add(f); }
     public void addEquipmentAllocation(EquipmentAllocation ea) { equipmentAllocations.add(ea); }
+
+    // --- Method Overloading: hasParticipant ---
+
+    /** Checks whether a participant is enrolled in this activity by their ID string. */
+    public boolean hasParticipant(String participantId) {
+        return participants.stream()
+                .anyMatch(p -> p.getId().equalsIgnoreCase(participantId));
+    }
+
+    /** Overloaded hasParticipant: checks whether a participant is enrolled given a Participant object. */
+    public boolean hasParticipant(Participant participant) {
+        return participant != null && hasParticipant(participant.getId());
+    }
 
     // --- Lambda & Stream Operations ---
 
@@ -73,18 +94,30 @@ public abstract class Activity implements Schedulable {
                 .orElse(0.0);
     }
 
-    /** Checks whether a participant is enrolled in this activity using lambda predicate. */
-    public boolean hasParticipant(String participantId) {
-        return participants.stream()
-                .anyMatch(p -> p.getId().equalsIgnoreCase(participantId));
-    }
-
     /** Returns currently active equipment allocations using lambda filter. */
     public List<EquipmentAllocation> getActiveAllocations() {
         return equipmentAllocations.stream()
                 .filter(ea -> "Allocated".equalsIgnoreCase(ea.getStatus()))
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    // --- Normal Method Overriding (overriding concrete methods from CampEntity) ---
+
+    /**
+     * Concrete method providing activity details.
+     * Overridden by subclasses (AdventureActivity, WaterActivity, TeamBuildingActivity)
+     * to demonstrate normal method overriding of non-abstract methods.
+     */
+    public String getActivityDetails() {
+        return String.format("Activity [%s] %s (%d mins, Max: %d)", getId(), getTitle(), durationMinutes, maxParticipants);
+    }
+
+    @Override
+    public String getDetails() {
+        return getActivityDetails();
+    }
+
+    // --- Interface Schedulable Implementation ---
 
     @Override
     public LocalDateTime getStartTime() { return startTime; }
@@ -99,6 +132,7 @@ public abstract class Activity implements Schedulable {
         this.startTime = startTime;
     }
 
+    // --- Abstract Method ---
+
     public abstract void conductActivity();
 }
-

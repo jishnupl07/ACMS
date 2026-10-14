@@ -8,6 +8,15 @@ public class SportsEquipment extends Equipment {
         this.sportType = sportType;
     }
 
+    // --- Normal Method Overriding (overriding concrete method from superclass Equipment) ---
+
+    @Override
+    public String getStatusSummary() {
+        return super.getStatusSummary() + String.format(" | Sport: %s", sportType);
+    }
+
+    // --- Abstract Method Implementation ---
+
     @Override
     public void checkCondition() {
         System.out.println("Checking sports equipment " + getName() + " for sport: " + sportType);
